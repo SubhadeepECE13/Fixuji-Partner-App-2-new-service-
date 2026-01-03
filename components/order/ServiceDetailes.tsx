@@ -548,7 +548,6 @@ const ServiceDetails: React.FC<Props> = ({ data }) => {
   const discount = Number(data.discountAmount || 0);
   const taxAmount = Number(data.taxAmount || 0);
 
-  /** FINAL PAYABLE (DO NOT RECOMPUTE) */
   const finalPayable = Number(data.netAmount || 0);
 
   /** Load initial addons (UI only, no price logic) */
