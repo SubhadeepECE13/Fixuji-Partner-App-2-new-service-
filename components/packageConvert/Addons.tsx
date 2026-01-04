@@ -19,6 +19,78 @@ interface Props {
   service: string | null;
 }
 
+// export default function AddonSection({
+//   addons,
+//   isLoading,
+//   selectedIds,
+//   toggleSelection,
+//   service,
+// }: Props) {
+//   return (
+//     <View style={styles.addonsSection}>
+//       <Text style={styles.sectionTitle}>Available Addons</Text>
+
+//       {isLoading ? (
+//         <View style={styles.skeletonWrap}>
+//           {[...Array(5)].map((_, i) => (
+//             <CustomSkeletonLoader
+//               key={i}
+//               dWidth="100%"
+//               dHeight={windowHeight(7)}
+//               radius={windowWidth(3)}
+//             />
+//           ))}
+//         </View>
+//       ) : addons.length > 0 ? (
+//         <View style={styles.addonList}>
+//           {addons.map((item) => {
+//             const isSelected = selectedIds.includes(item.addon.id);
+
+//             return (
+//               <View
+//                 key={item.id}
+//                 style={[styles.addonRow, isSelected && styles.addonRowSelected]}
+//               >
+//                 <View style={styles.addonLeft}>
+//                   <Checkbox
+//                     value={isSelected}
+//                     onValueChange={() => toggleSelection(item.addon.id)}
+//                     color={isSelected ? color.primary : color.backDropColor}
+//                     style={styles.checkbox}
+//                   />
+
+//                   <View style={{ flex: 1 }}>
+//                     <Text
+//                       style={[
+//                         styles.addonText,
+//                         isSelected && styles.addonTextSelected,
+//                       ]}
+//                       numberOfLines={1}
+//                     >
+//                       {item.addon.addonName}
+//                     </Text>
+
+//                     <Text style={styles.commissionText}>
+//                       {item.addon.addonDesc}
+//                     </Text>
+//                   </View>
+//                 </View>
+
+//                 <Text style={styles.price}>₹{item.actualPrice}</Text>
+//               </View>
+//             );
+//           })}
+//         </View>
+//       ) : !service ? (
+//         <Text style={styles.emptyText}>Please select a service first.</Text>
+//       ) : (
+//         <Text style={styles.emptyText}>
+//           No addons available for this service.
+//         </Text>
+//       )}
+//     </View>
+//   );
+// }
 export default function AddonSection({
   addons,
   isLoading,
@@ -44,7 +116,8 @@ export default function AddonSection({
       ) : addons.length > 0 ? (
         <View style={styles.addonList}>
           {addons.map((item) => {
-            const isSelected = selectedIds.includes(item.id);
+            const addonId = item.addon.id;
+            const isSelected = selectedIds.includes(addonId);
 
             return (
               <View
@@ -54,7 +127,7 @@ export default function AddonSection({
                 <View style={styles.addonLeft}>
                   <Checkbox
                     value={isSelected}
-                    onValueChange={() => toggleSelection(item.id)}
+                    onValueChange={() => toggleSelection(addonId)}
                     color={isSelected ? color.primary : color.backDropColor}
                     style={styles.checkbox}
                   />

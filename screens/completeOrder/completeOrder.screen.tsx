@@ -336,7 +336,8 @@ const CompleteOrderScreen = () => {
   const { order_id } = useLocalSearchParams<{ order_id: string }>();
   const dispatch = useAppDispatch();
   const user = useAppSelector((s) => s.user.user);
-
+  const orderId =
+    Number(useAppSelector((s) => s.orderDetails.orderDetails?.id)) || 0;
   const ORDER_TOTAL =
     Number(useAppSelector((s) => s.orderDetails.orderDetails?.grossAmount)) ||
     0;
@@ -373,12 +374,15 @@ const CompleteOrderScreen = () => {
       });
       return;
     }
-
+    const payloadPayments = payments.map((p) => ({
+      paymentMode: p.paymentMode,
+      paymentAmount: Number(p.paymentAmount),
+    }));
     try {
       await dispatch(
         completeOrder({
-          bookingId: Number(order_id),
-          payments,
+          bookingId: Number(orderId),
+          payments: payloadPayments,
           totalAmount: ORDER_TOTAL,
           collectorId: user?.userId ?? 0,
         })
@@ -443,25 +447,6 @@ const CompleteOrderScreen = () => {
                   })
                 }
               />
-
-              {item.paymentMode === "CREDIT_CARD" && (
-                <>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Card Number"
-                    onChangeText={(v) => updatePayment(index, { cardNo: v })}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Card Holder Name"
-                    onChangeText={(v) =>
-                      updatePayment(index, {
-                        cardHolderName: v,
-                      })
-                    }
-                  />
-                </>
-              )}
 
               {item.paymentMode === "UPI" && (
                 <UPIQrCard

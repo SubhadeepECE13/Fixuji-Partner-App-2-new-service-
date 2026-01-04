@@ -116,10 +116,20 @@ const addonSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+
+    clearAddons: (state) => {
+      state.loading = false;
+      state.data = null;
+      state.error = null;
+    },
   },
 });
 
-export const { fetchAddonsStart, fetchAddonsSuccess, fetchAddonsFailure } =
-  addonSlice.actions;
+export const {
+  fetchAddonsStart,
+  fetchAddonsSuccess,
+  fetchAddonsFailure,
+  clearAddons,
+} = addonSlice.actions;
 
 export default addonSlice.reducer;

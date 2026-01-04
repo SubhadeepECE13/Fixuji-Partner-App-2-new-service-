@@ -194,9 +194,12 @@ export interface CompleteOrderPayload {
 export const completeOrder =
   (payload: CompleteOrderPayload) => async (dispatch: AppDispatch) => {
     try {
-      await appAxios.post("/booking/complete", payload);
-
       console.log("CompleteOrderPayload:", payload);
+      console.log(
+        "booking id for order completipon =========defhuivbdashfbgdaf====================>>>>>>>>>>>",
+        payload
+      );
+      await appAxios.post("/booking/complete", payload);
 
       Toast.show({
         type: "success",
