@@ -500,6 +500,7 @@ export interface IBookingResponse extends IBaseObject {
   grossAmount: number;
   netAmount: number;
   paidAmount: number;
+  refundedAmount: number;
   initialBookingAmount: number;
   calculatedEta: number;
   isAppBooking: boolean;

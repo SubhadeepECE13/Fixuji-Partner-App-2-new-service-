@@ -539,16 +539,15 @@ const ServiceDetails: React.FC<Props> = ({ data }) => {
       (state: RootState) => state.orderPayment.selectedAddons[order_id]
     ) || [];
 
-  /** =========================
-   * BACKEND TRUSTED VALUES
-   * ========================= */
   const basePrice = Number(data.serviceAmount || 0);
   const addonTotal = Number(data.addonTotalAmount || 0);
   const chargesTotal = Number(data.chargesTotalAmount || 0);
   const discount = Number(data.discountAmount || 0);
   const taxAmount = Number(data.taxAmount || 0);
-
-  const finalPayable = Number(data.netAmount || 0);
+  const advancePaidAmount = Number(data.paidAmount || 0);
+  const refundedAmount = Number(data.refundedAmount || 0);
+  const payable = Number(data.netAmount || 0);
+  const finalPayable = payable - advancePaidAmount;
 
   /** Load initial addons (UI only, no price logic) */
   useEffect(() => {
@@ -566,7 +565,6 @@ const ServiceDetails: React.FC<Props> = ({ data }) => {
     );
   }, [order_id, data.bookingAddons]);
 
-  /** Cleanup */
   useEffect(() => {
     return () => {
       dispatch(loadInitialAddons({ orderId: order_id, addons: [] }));
@@ -623,13 +621,13 @@ const ServiceDetails: React.FC<Props> = ({ data }) => {
                             })
                           )
                         }
-                        style={styles.iconBox}
+                        // style={styles.iconBox}
                       >
-                        <Ionicons
+                        {/* <Ionicons
                           name="trash-outline"
                           size={18}
                           color="#ff4d4d"
-                        />
+                        /> */}
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -645,10 +643,16 @@ const ServiceDetails: React.FC<Props> = ({ data }) => {
               <Text style={styles.priceText}>₹{chargesTotal}</Text>
             </View>
 
+            {/* Refund */}
+            <View style={styles.row}>
+              <Text style={styles.label}>Refund </Text>
+              <Text style={styles.priceText}>₹{refundedAmount}</Text>
+            </View>
+
             {/* Discount */}
             <View style={styles.row}>
               <Text style={styles.label}>Discount</Text>
-              <Text style={styles.discountText}>- ₹{discount}</Text>
+              <Text style={styles.discountText}>₹{discount}</Text>
             </View>
 
             {/* Tax */}
@@ -657,11 +661,26 @@ const ServiceDetails: React.FC<Props> = ({ data }) => {
               <Text style={styles.priceText}>₹{taxAmount}</Text>
             </View>
 
+            {/* Paid */}
+            {/* <View style={styles.row}>
+              <Text style={styles.label}>Paid </Text>
+              <Text style={styles.paidText}>₹{advancePaidAmount}</Text>
+            </View> */}
+
             <Divider style={{ marginBottom: windowHeight(1.5) }} />
 
             {/* Final Total */}
             <View style={styles.row}>
               <Text style={styles.totalLabel}>Total Payable</Text>
+              <Text style={styles.totalText}>₹{payable}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.totalLabel}>Paid</Text>
+              <Text style={styles.paidText}>₹{advancePaidAmount}</Text>
+            </View>
+            <Divider style={{ marginBottom: windowHeight(1.5) }} />
+            <View style={styles.row}>
+              <Text style={styles.totalLabel}>Final Payable</Text>
               <Text style={styles.totalText}>₹{finalPayable}</Text>
             </View>
           </View>
@@ -720,6 +739,11 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.rg,
     color: color.primary,
   },
+  paidText: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.md,
+    color: color.green,
+  },
   servicepriceText: {
     fontFamily: fonts.bold,
     fontSize: fontSizes.md,
@@ -735,11 +759,11 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.md,
     color: color.primary,
   },
-  iconBox: {
-    borderRadius: windowHeight(2),
-    width: windowWidth(10),
-    alignItems: "center",
-  },
+  // iconBox: {
+  //   borderRadius: windowHeight(2),
+  //   width: windowWidth(10),
+  //   alignItems: "center",
+  // },
   label: { fontFamily: fonts.medium, fontSize: fontSizes.md },
   totalLabel: { fontFamily: fonts.medium, fontSize: fontSizes.md },
 });

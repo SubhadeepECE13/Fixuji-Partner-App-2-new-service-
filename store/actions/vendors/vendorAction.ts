@@ -29,6 +29,7 @@ export const startJourney =
           "Content-Type": "multipart/form-data",
         },
       });
+      console.log("Start journey form data", formData);
 
       Toast.show({
         type: "success",
@@ -205,7 +206,7 @@ export const completeOrder =
         type: "success",
         text1: "Order completed successfully",
       });
-
+      await dispatch(triggerOrderRefetch(String(payload.bookingId)));
       return true;
     } catch (error: any) {
       Toast.show({

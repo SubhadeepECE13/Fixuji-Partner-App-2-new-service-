@@ -549,6 +549,7 @@ import {
 import Toast from "react-native-toast-message";
 import { useDispatch, useSelector } from "react-redux";
 import { calculateSingleChild } from "av6-utils";
+import { triggerOrderRefetch } from "@/store/actions/carImage/refetchActions";
 
 export default function PackageConvert() {
   const dispatch = useDispatch<AppDispatch>();
@@ -562,7 +563,8 @@ export default function PackageConvert() {
   const { data: settings } = useSelector((s: RootState) => s.settings);
 
   const bookingId = orderDetails?.id ?? null;
-  const variantId = orderDetails?.customerVehicle?.model?.id ?? null;
+  const orderId = String(orderDetails?.id ?? null);
+  const variantId = orderDetails?.customerVehicle?.variant.id ?? null;
 
   /* ---------------- SERVICE STATE ---------------- */
   const [service, setService] = useState<string | null>(null);
@@ -717,6 +719,7 @@ export default function PackageConvert() {
       );
 
       Toast.show({ type: "success", text1: "Package upgraded" });
+      dispatch(triggerOrderRefetch(orderId));
       router.replace(`/orderDetailes/${order_id}`);
     } catch {
       Toast.show({ type: "error", text1: "Upgrade failed" });

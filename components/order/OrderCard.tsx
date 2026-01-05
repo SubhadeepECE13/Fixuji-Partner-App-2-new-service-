@@ -14,6 +14,7 @@ import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Chip from "./OrderChip";
+import CustomImage from "../common/CustomImage";
 
 interface Props {
   booking: IBookingResponse;
@@ -24,6 +25,22 @@ interface Props {
 const OrderCard: React.FC<Props> = ({ booking, settings, user }) => {
   const bookingDate = new Date(booking.bookingDate);
   const isToday = bookingDate.toDateString() === new Date().toDateString();
+  const formatTime12Hour = (time?: string) => {
+    if (!time) return "";
+
+    const [hourStr, minuteStr] = time.split(":");
+
+    let hour = Number(hourStr);
+    const minute = minuteStr ?? "00";
+
+    if (isNaN(hour)) return time;
+
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12;
+    hour = hour === 0 ? 12 : hour;
+
+    return `${hour}:${minute} ${ampm}`;
+  };
 
   return (
     <>
@@ -64,17 +81,17 @@ const OrderCard: React.FC<Props> = ({ booking, settings, user }) => {
 
             {/* Right side: Technician info */}
             <View style={styles.rightBox}>
-              {/* <CustomImage
-                imageUrl={vendor.vendor.vendor_img}
+              <CustomImage
+                imageUrl={booking.bookingVendors[0]?.vendor.vendorImg ?? ""}
                 style={styles.avatar}
-              /> */}
+              />
               <Text style={styles.technicianName}>{booking.area?.value}</Text>
               <Text style={styles.priceText}>
                 {new Intl.NumberFormat("en-IN", {
                   style: "currency",
                   currency: "INR",
                   minimumFractionDigits: 0,
-                }).format(Number(booking.serviceAmount || 0))}
+                }).format(Number(booking.netAmount || 0))}
               </Text>
             </View>
           </View>
@@ -93,7 +110,9 @@ const OrderCard: React.FC<Props> = ({ booking, settings, user }) => {
             />
 
             <View style={styles.datetime}>
-              {/* <Text style={styles.timeText}>{booking.bookingDate}</Text> */}
+              <Text style={styles.timeText}>
+                {formatTime12Hour(booking.bookingTime)}
+              </Text>
               <Text style={styles.dateText}>
                 {isToday
                   ? "Today"

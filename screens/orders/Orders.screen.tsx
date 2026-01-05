@@ -170,7 +170,7 @@ export default function OrdersScreen() {
       selectedIndex={selectedIndex}
       handleTabChange={setSelectedIndex}
       tabItems={ORDERS_SCREEN_TABS}
-      loader={initialLoading || loadingMore} // ✅ IMPORTANT FIX
+      loader={initialLoading || loadingMore}
       refresh={false}
       onRefresh={() => fetchOrders(1)}
       items={orders ?? []}
