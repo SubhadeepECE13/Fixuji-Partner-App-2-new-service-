@@ -20,6 +20,7 @@ export type Color = {
   lightPink: string;
   lightGreen: string;
   stealGreen: string;
+  amountGreen: string;
   lightRed: string;
   warningText: string;
   regularText: string;
@@ -55,6 +56,7 @@ const color: Color = {
   appYellow: "rgba(254, 203, 61, 1)",
   pink: "rgba(240, 37, 243, 1)",
   green: "rgba(0, 173, 150, 1)",
+  amountGreen: "rgb(22, 163, 74)",
   red: "rgba(243, 37, 65, 1)",
   stealGreen: "rgba(28, 139, 152, 1)",
   lightBlue: "rgba(217, 217, 251, 1)",

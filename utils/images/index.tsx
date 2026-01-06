@@ -24,6 +24,8 @@ export type images = {
   notFound: ImageSourcePropType;
   update: AnimationObject;
   profile: ImageSourcePropType;
+  payments: ImageSourcePropType;
+  carDetail: ImageSourcePropType;
 };
 
 const Images: images = {
@@ -49,5 +51,7 @@ const Images: images = {
   notFound: require("../../assets/images/notFound.png"),
   update: require("../../assets/lottie/update.json"),
   profile: require("../../assets/images/profile.png"),
+  payments: require("../../assets/images/payments.png"),
+  carDetail: require("../../assets/images/cardetail.jpg"),
 };
 export default Images;

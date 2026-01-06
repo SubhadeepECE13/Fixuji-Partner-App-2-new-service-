@@ -9,6 +9,11 @@ export const DashBoardNavigationTab: NavigationTabProps[] = [
     image: Images.Orders,
     route: "/(routes)/orders",
   },
+  {
+    title: "Payments",
+    image: Images.payments,
+    route: "/(routes)/commisonHistory",
+  },
 ];
 
 export const ORDERS_SCREEN_TABS: TabItem[] = [

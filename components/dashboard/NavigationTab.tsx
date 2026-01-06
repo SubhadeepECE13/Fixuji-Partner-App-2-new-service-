@@ -43,8 +43,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   tabIcon: {
-    width: "40%",
-    height: "40%",
+    width: "60%",
+    height: "50%",
     objectFit: "contain",
   },
   tabText: {
