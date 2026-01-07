@@ -30,11 +30,10 @@ const RedeemSuccessScreen = () => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const soundRef = useRef(null);
 
-  // 🔊 Play success sound
   const playSuccessSound = async () => {
     try {
       const { sound } = await Audio.Sound.createAsync(
-        require("@/assets/sounds/success.mp3"),
+        require("../../../assets/sounds/paymentSuccess.mp3"),
         { shouldPlay: true }
       );
       soundRef.current = sound as any;
@@ -97,7 +96,7 @@ const RedeemSuccessScreen = () => {
         Animated.timing(item.rotate, {
           toValue: item.targetRotate,
           duration: 1500,
-          easing: Easing.out(Easing.back(1.5)), // Adds a little bounce to rotation
+          easing: Easing.out(Easing.back(1.5)),
           useNativeDriver: true,
         }),
         Animated.sequence([
