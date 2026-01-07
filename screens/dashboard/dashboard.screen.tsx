@@ -237,7 +237,6 @@ const DashboardScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const dispatch = useAppDispatch();
-  const settings = useAppSelector((state: RootState) => state.settings.data);
   const { user } = useAppSelector((state) => state.user);
 
   const totalCommison = 3000;

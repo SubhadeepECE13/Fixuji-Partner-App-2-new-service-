@@ -10,9 +10,14 @@ export const DashBoardNavigationTab: NavigationTabProps[] = [
     route: "/(routes)/orders",
   },
   {
-    title: "Payments",
-    image: Images.payments,
+    title: "Commission",
+    image: Images.commison,
     route: "/(routes)/commisonHistory",
+  },
+  {
+    title: "Payment",
+    image: Images.rupees,
+    route: "/(routes)/wallet",
   },
 ];
 

@@ -14,22 +14,18 @@ const commonStyles = StyleSheet.create({
     fontFamily: fonts.semiBold,
     fontSize: fontSizes.xl,
     color: color.titleText,
-    // fontWeight: "500",
   },
   mediumTextBlack: {
     fontFamily: fonts.medium,
     fontSize: fontSizes.lg,
     color: color.regularText,
-    // fontWeight: "500",
   },
   extraBold: {
     fontFamily: fonts.semiBold,
     fontSize: fontSizes.lg,
     color: "white",
-    // fontWeight: "500",
   },
   mediumTextBlack12: {
-    // fontWeight: "400",
     fontFamily: fonts.medium,
     fontSize: fontSizes.lg,
     color: color.regularText,
@@ -38,7 +34,6 @@ const commonStyles = StyleSheet.create({
     fontFamily: fonts.regular,
     fontSize: fontSizes.md,
     color: color.regularText,
-    // fontWeight: "500",
   },
   flexContainer: {
     flex: 1,

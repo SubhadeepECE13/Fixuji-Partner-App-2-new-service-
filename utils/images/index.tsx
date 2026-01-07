@@ -26,6 +26,11 @@ export type images = {
   profile: ImageSourcePropType;
   payments: ImageSourcePropType;
   carDetail: ImageSourcePropType;
+  rupees: ImageSourcePropType;
+  commison: ImageSourcePropType;
+  successPayment: ImageSourcePropType;
+  failedPayment: ImageSourcePropType;
+  logo: ImageSourcePropType;
 };
 
 const Images: images = {
@@ -47,11 +52,16 @@ const Images: images = {
   //   transaction: require("../../assets/images/transaction.png"),
 
   onBoarding: require("../../assets/images/FixujiGo.jpg"),
-  Orders: require("../../assets/images/fixuji-logo.png"),
+  Orders: require("../../assets/images/carBooking.png"),
   notFound: require("../../assets/images/notFound.png"),
   update: require("../../assets/lottie/update.json"),
   profile: require("../../assets/images/profile.png"),
   payments: require("../../assets/images/payments.png"),
   carDetail: require("../../assets/images/cardetail.jpg"),
+  rupees: require("../../assets/images/rupees.png"),
+  commison: require("../../assets/images/commison.png"),
+  successPayment: require("../../assets/images/successPayment.png"),
+  logo: require("../../assets/images/fixuji-logo.png"),
+  failedPayment: require("../../assets/images/failedPaid.png"),
 };
 export default Images;
