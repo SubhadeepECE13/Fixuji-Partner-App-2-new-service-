@@ -100,7 +100,7 @@ const RedeemSuccessScreen = () => {
           useNativeDriver: true,
         }),
         Animated.sequence([
-          Animated.delay(800),
+          Animated.delay(1900),
           Animated.timing(item.opacity, {
             toValue: 0.7,
             duration: 500,

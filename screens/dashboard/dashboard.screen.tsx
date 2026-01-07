@@ -232,6 +232,7 @@ import { DashBoardNavigationTab } from "@/configs/constants";
 import { getUserData } from "@/store/actions/users/userAction";
 import { getSettings } from "@/store/actions/settings/settingsActions";
 import { RootState } from "@/store/Store";
+import Images from "@/utils/images";
 
 const DashboardScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
@@ -290,7 +291,7 @@ const DashboardScreen = () => {
       >
         <View style={styles.container}>
           <ImageBackground
-            source={require("../../assets/images/car.jpg")}
+            source={Images.carImage}
             style={styles.dashBox}
             imageStyle={styles.imageStyle}
             resizeMode="cover"

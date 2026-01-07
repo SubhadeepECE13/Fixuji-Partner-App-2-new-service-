@@ -12,6 +12,7 @@ import {
   windowWidth,
 } from "@/themes/Constants.themes";
 import fonts from "@/themes/Fonts.themes";
+import SwipeButton from "@/components/common/SwipeButton";
 
 const WITHDRAWABLE_BALANCE = 12450;
 
@@ -35,11 +36,11 @@ const RedeemAmountScreen = () => {
           placeholder="Enter amount"
         />
 
-        <Button
+        <SwipeButton
           title="Swipe to Redeem"
+          onSwipeSuccess={() => router.push("/reedem/processing")}
           style={styles.swipeButton}
           backgroundColor={color.primary}
-          onPress={() => router.push("/reedem/processing")}
         />
       </View>
     </View>
@@ -87,6 +88,8 @@ const styles = StyleSheet.create({
 
   swipeButton: {
     height: windowHeight(6),
+    width: windowWidth(80),
     borderRadius: 30,
+    alignSelf: "center",
   },
 });

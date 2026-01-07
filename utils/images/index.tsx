@@ -31,6 +31,7 @@ export type images = {
   successPayment: ImageSourcePropType;
   failedPayment: ImageSourcePropType;
   logo: ImageSourcePropType;
+  carImage: ImageSourcePropType;
 };
 
 const Images: images = {
@@ -63,5 +64,6 @@ const Images: images = {
   successPayment: require("../../assets/images/successPayment.png"),
   logo: require("../../assets/images/fixuji-logo.png"),
   failedPayment: require("../../assets/images/failedPaid.png"),
+  carImage: require("../../assets/images/car.jpg"),
 };
 export default Images;
