@@ -19,6 +19,11 @@ export const DashBoardNavigationTab: NavigationTabProps[] = [
     image: Images.rupees,
     route: "/(routes)/wallet",
   },
+  {
+    title: "Attendance",
+    image: Images.attendance,
+    route: "/(routes)/attendance",
+  },
 ];
 
 export const ORDERS_SCREEN_TABS: TabItem[] = [
