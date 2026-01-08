@@ -10,7 +10,11 @@ import {
 
 import color from "@/themes/Colors.themes";
 import fonts from "@/themes/Fonts.themes";
-import { windowHeight, windowWidth } from "@/themes/Constants.themes";
+import {
+  fontSizes,
+  windowHeight,
+  windowWidth,
+} from "@/themes/Constants.themes";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface SwipeButtonProps {
@@ -21,7 +25,7 @@ interface SwipeButtonProps {
 }
 
 const SwipeButton: React.FC<SwipeButtonProps> = ({
-  title = "Swipe to Redeem",
+  title,
   onSwipeSuccess,
   style,
   backgroundColor = color.primary,
@@ -84,7 +88,7 @@ const SwipeButton: React.FC<SwipeButtonProps> = ({
       >
         <MaterialCommunityIcons
           name="arrow-right"
-          size={42}
+          size={35}
           color={color.primary}
         />
       </Animated.View>
@@ -108,23 +112,16 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     color: "#fff",
     fontFamily: fonts.medium,
-    fontSize: 16,
+    fontSize: fontSizes.rg,
   },
 
   thumb: {
     height: windowHeight(5),
     width: windowHeight(5),
-    borderRadius: 100,
-    backgroundColor: "#fff",
-    marginLeft: 4,
+    borderRadius: windowHeight(100),
+    backgroundColor: color.whiteColor,
+    marginLeft: windowHeight(0.6),
     justifyContent: "center",
     alignItems: "center",
-    elevation: 3,
-  },
-
-  arrow: {
-    fontSize: 22,
-    color: color.primary,
-    fontWeight: "bold",
   },
 });

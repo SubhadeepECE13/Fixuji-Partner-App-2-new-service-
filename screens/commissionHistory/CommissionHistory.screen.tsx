@@ -78,60 +78,6 @@ const PAYMENT_HISTORY: PaymentHistory[] = [
     status: "Processed",
     time: "01:29 PM",
   },
-  {
-    id: "6",
-    title: "OD-260105-00005",
-    date: "02 Jan 2026",
-    amount: 3000,
-    type: "credit",
-    status: "Processed",
-    time: "01:29 PM",
-  },
-  {
-    id: "7",
-    title: "OD-260105-00005",
-    date: "02 Jan 2026",
-    amount: 3000,
-    type: "credit",
-    status: "Processed",
-    time: "01:29 PM",
-  },
-  {
-    id: "8",
-    title: "OD-260105-00005",
-    date: "02 Jan 2026",
-    amount: 3000,
-    type: "credit",
-    status: "Processed",
-    time: "01:29 PM",
-  },
-  {
-    id: "9",
-    title: "OD-260105-00005",
-    date: "02 Jan 2026",
-    amount: 3000,
-    type: "credit",
-    status: "Processed",
-    time: "01:29 PM",
-  },
-  {
-    id: "10",
-    title: "OD-260105-00005",
-    date: "02 Jan 2026",
-    amount: 3000,
-    type: "credit",
-    status: "Processed",
-    time: "01:29 PM",
-  },
-  {
-    id: "11",
-    title: "OD-260105-00005",
-    date: "02 Jan 2026",
-    amount: 3000,
-    type: "credit",
-    status: "Processed",
-    time: "01:29 PM",
-  },
 ];
 
 const CommissionHistoryScreen = () => {
@@ -205,7 +151,6 @@ const CommissionHistoryScreen = () => {
             onPress={() => router.push("/(routes)/reedem")}
           />
         </View>
-        ̦
       </LinearGradient>
 
       <Text style={styles.sectionTitle}>Recent Transactions</Text>

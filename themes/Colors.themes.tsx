@@ -21,6 +21,7 @@ export type Color = {
   lightGreen: string;
   stealGreen: string;
   amountGreen: string;
+  buttonPrimary: string;
   lightRed: string;
   warningText: string;
   regularText: string;
@@ -43,6 +44,7 @@ const color: Color = {
   bgGray: "rgba(248, 248, 248, 1)",
   // primary: "rgba(39, 87, 69, 1)",
   primary: "rgb(24, 122, 70)",
+  buttonPrimary: "rgb(22, 163, 74)",
   fadedPrimary: "rgba(23, 131, 19, 0.2)",
   primaryDisabled: "rgba(100, 180, 100, 0.7)",
   regularText: "rgba(15, 15, 15, 1)",
