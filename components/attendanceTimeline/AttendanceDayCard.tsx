@@ -19,9 +19,17 @@ type Props = {
   hours?: string;
   status?: "PRESENT" | "ABSENT" | "HD" | "NOT_MARKED";
   shift?: string;
+  image?: string;
 };
 
-const AttendanceDayCard = ({ date, day, hours, status, shift }: Props) => {
+const AttendanceDayCard = ({
+  date,
+  day,
+  hours,
+  status,
+  shift,
+  image,
+}: Props) => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
   const openSheet = () => {
@@ -97,6 +105,7 @@ const AttendanceDayCard = ({ date, day, hours, status, shift }: Props) => {
         hours={hours}
         status={status}
         shift={shift}
+        image={image}
       />
     </>
   );

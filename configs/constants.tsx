@@ -22,7 +22,7 @@ export const DashBoardNavigationTab: NavigationTabProps[] = [
   {
     title: "Attendance",
     image: Images.attendance,
-    route: "/(routes)/attendance",
+    route: "/(routes)/attendanceTimeline",
   },
 ];
 

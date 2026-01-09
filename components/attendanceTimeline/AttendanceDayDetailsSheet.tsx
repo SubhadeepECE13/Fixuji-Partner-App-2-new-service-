@@ -3,7 +3,6 @@ import { View, StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
-import CustomBottomSheetModal from "@/components/common/CustomBottomSheetModal";
 import color from "@/themes/Colors.themes";
 import fonts from "@/themes/Fonts.themes";
 import {
@@ -11,6 +10,9 @@ import {
   windowHeight,
   windowWidth,
 } from "@/themes/Constants.themes";
+import CustomImage from "../common/CustomImage";
+import Images from "@/utils/images";
+import CustomBottomSheetModal from "../common/CustomBottomSheetModal";
 
 type Props = {
   date: string;
@@ -18,10 +20,11 @@ type Props = {
   hours?: string;
   status?: string;
   shift?: string;
+  image?: string;
 };
 
 const AttendanceDayDetailsSheet = forwardRef<BottomSheetModal, Props>(
-  ({ date, day, hours, status, shift }, ref) => {
+  ({ date, day, hours, status, shift, image }, ref) => {
     const snapPoints = useMemo(() => ["50%"], []);
     return (
       <CustomBottomSheetModal
@@ -50,6 +53,12 @@ const AttendanceDayDetailsSheet = forwardRef<BottomSheetModal, Props>(
             <View style={styles.row}>
               <Text style={styles.label}>Shift</Text>
               <Text style={styles.value}>{shift}</Text>
+            </View>
+          )}
+          {image && (
+            <View style={styles.row}>
+              <Text style={styles.label}>Image</Text>
+              <CustomImage imageUrl={image} resizeMode="cover" />
             </View>
           )}
         </View>
@@ -88,5 +97,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semiBold,
     fontSize: fontSizes.sm,
     color: "#111827",
+  },
+  imageRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: windowWidth(4),
+    marginTop: windowHeight(2),
   },
 });
