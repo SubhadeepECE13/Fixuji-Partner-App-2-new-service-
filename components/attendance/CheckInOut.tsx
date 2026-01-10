@@ -1,7 +1,7 @@
 import { commonStyles } from "@/styles/common.style";
 
 import React from "react";
-import { StyleSheet, Switch, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { getFormatedDate } from "react-native-modern-datepicker";
 import { CustomIcon } from "../common/Icon";
 import color from "@/themes/Colors.themes";
@@ -11,6 +11,7 @@ import {
   windowWidth,
 } from "@/themes/Constants.themes";
 import fonts from "@/themes/Fonts.themes";
+import { Switch } from "react-native-paper";
 
 type CheckInOutProps = {
   isOn: boolean;

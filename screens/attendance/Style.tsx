@@ -36,12 +36,13 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     paddingTop: windowHeight(2),
     // justifyContent: 'space-evenly',
-    rowGap: windowHeight(1.8),
+    rowGap: windowHeight(1.9),
   },
   TimeCardContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
+    marginBottom: windowHeight(3),
   },
   chipHeading: {
     fontFamily: fonts.semiBold,

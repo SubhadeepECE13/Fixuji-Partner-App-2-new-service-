@@ -1,494 +1,78 @@
-// import Header from "@/components/common/Header";
-// import Loader from "@/components/common/Loader";
-// import Map, { Coordinates } from "@/components/common/Map";
-// import { setSuccess } from "@/store/reducers/orders/orderSlice";
-// import { useAppDispatch, useAppSelector } from "@/store/Reduxhook";
-// import { userStorage } from "@/store/Storage";
-// import { commonStyles } from "@/styles/common.style";
-// import * as ImagePicker from "expo-image-picker";
-// import { ImagePickerAsset } from "expo-image-picker";
-// import { router } from "expo-router";
-// import React, { useEffect, useState } from "react";
-// import {
-//   Image,
-//   KeyboardAvoidingView,
-//   Platform,
-//   ScrollView,
-//   Text,
-//   View,
-// } from "react-native";
-// import { getFormatedDate } from "react-native-modern-datepicker";
-// import Toast from "react-native-toast-message";
-// import styles from "./Style";
-// import { windowHeight } from "@/themes/Constants.themes";
-// import Chip from "@/components/order/OrderChip";
-// import color from "@/themes/Colors.themes";
-// import CheckInOut from "@/components/attendance/CheckInOut";
-// import TimeCard from "@/components/attendance/TimeInOut";
-// import Button from "@/components/common/Button";
-// import AreYouSureModal from "@/components/common/AreYouSureModal";
-// import {
-//   checkInApi,
-//   checkOutApi,
-//   getAttendanceApi,
-// } from "@/store/actions/attendance/attendance.actions";
-
-// const AttendanceScreen = () => {
-//   const userId = userStorage.getString("user_id");
-
-//   const [isOn, setIsOn] = useState(false);
-//   const [loader, setLoader] = useState(false);
-//   const [isCheckedIn, setIsCheckedIn] = useState(false);
-//   const [isCheckedOut, setIsCheckedOut] = useState(false);
-//   const [isDisabled, setIsDisabled] = useState(true);
-//   const [outOfRange, setOutOfRange] = useState(false);
-//   const [checkIn, setCheckIn] = useState("");
-//   const [checkOut, setCheckOut] = useState("");
-//   // const [checkInPhoto, setCheckInPhoto] = useState<ImagePickerAsset | null>(
-//   //   null
-//   // )
-//   // const [checkOutPhoto, setCheckOutPhoto] = useState<ImagePickerAsset | null>(
-//   //   null
-//   // )
-//   const [selectedRegion, setSelectedRegion] = useState<Area | "office">();
-//   const [selectedRegionName, setSelectedRegionName] = useState<string>();
-//   const [error, setError] = useState<string | null>(null);
-//   const [modalVisible, setModalVisible] = useState(false);
-//   const [isModalVisible, setIsModalVisible] = useState(false);
-//   const [distance, setDistance] = useState<number>();
-//   const [markerLocation, setMarkerLocation] = useState<Coordinates>();
-//   const [myLocation, setMyLocation] = useState<Coordinates>();
-
-//   const { area } = useAppSelector((state) => state.user);
-//   //   const { success, todayAttendance } = useAppSelector(
-//   //     (state) => state.attendance
-//   //   );
-//   const dispatch = useAppDispatch();
-
-//   const requestCameraPermission = async () => {
-//     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-//     if (status !== "granted") {
-//       setError("Camera access is required to use this feature.");
-//       setModalVisible(true);
-//       return false;
-//     }
-//     return true;
-//   };
-
-//   const openCamera = async () => {
-//     const hasPermission = await requestCameraPermission();
-//     if (!hasPermission) return false;
-
-//     try {
-//       const result = await ImagePicker.launchCameraAsync({
-//         mediaTypes: ["images"],
-//         quality: 0.5,
-//       });
-
-//       if (!result.canceled && result?.assets[0]?.uri) {
-//         return result.assets[0];
-//       } else {
-//         setError("No image selected.");
-//         return false;
-//       }
-//     } catch (error) {
-//       setError("Could not open the camera. Please try again.");
-//       return false;
-//     }
-//   };
-
-//   const checkInApiCall = async (image: ImagePickerAsset) => {
-//     try {
-//       setLoader(true);
-//       let body: AttendanceCheckInReq = {
-//         date: getFormatedDate(new Date(), "YYYY-MM-DD"),
-//         clock_in: getFormatedDate(new Date(), "HH:mm"),
-//         checkin_geolocation: JSON.stringify({
-//           latitude: myLocation?.latitude,
-//           longitude: myLocation?.longitude,
-//         }),
-//         checkin_distance: distance ? distance : null,
-//         checkin_area:
-//           selectedRegion === "office"
-//             ? null
-//             : selectedRegion
-//               ? selectedRegion.id
-//               : null,
-//         checkin_attendance_place: selectedRegionName ? selectedRegionName : "",
-//         checkin_attachment: {
-//           uri: image.uri,
-//           type: image?.mimeType || "image/jpeg",
-//           name: image?.fileName || `image-${Date.now()}.jpg`,
-//         },
-//       };
-
-//       // Step 2: Create a new FormData object
-//       const formData = new FormData();
-
-//       // Step 3: Loop through the JSON object and append the data to FormData
-//       for (const [key, value] of Object.entries(body)) {
-//         formData.append(key, value);
-//       }
-
-//       await dispatch(checkInApi(formData));
-//     } catch (error) {
-//       console.log(error);
-//     } finally {
-//       setLoader(false);
-//     }
-//   };
-
-//   const checkOutApiCall = async (image: ImagePickerAsset) => {
-//     try {
-//       let body: AttendanceCheckOutReq = {
-//         date: getFormatedDate(new Date(), "YYYY-MM-DD"),
-//         clock_out: getFormatedDate(new Date(), "HH:mm"),
-//         checkout_geolocation: JSON.stringify({
-//           latitude: myLocation?.latitude,
-//           longitude: myLocation?.longitude,
-//         }),
-//         checkout_distance: distance ? distance : null,
-//         checkout_area:
-//           selectedRegion === "office"
-//             ? null
-//             : selectedRegion
-//               ? selectedRegion.id
-//               : null,
-//         checkout_attendance_place: selectedRegionName ? selectedRegionName : "",
-//         checkout_attachment: {
-//           uri: image.uri,
-//           type: image?.mimeType || "image/jpeg",
-//           name: image?.fileName || `image-${Date.now()}.jpg`,
-//         },
-//       };
-
-//       // Step 2: Create a new FormData object
-//       const formData = new FormData();
-
-//       // Step 3: Loop through the JSON object and append the data to FormData
-//       for (const [key, value] of Object.entries(body)) {
-//         formData.append(key, value);
-//       }
-
-//       await dispatch(checkOutApi(formData));
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   };
-
-//   const onPressModal = async () => {
-//     try {
-//       setLoader(true);
-//       setIsModalVisible(false);
-//       const image: ImagePickerAsset | false = await openCamera();
-
-//       if (image !== false && image.uri !== undefined) {
-//         console.log("start checking out");
-//         await checkOutApiCall(image);
-//         // setCheckOutPhoto(image)
-//       }
-//     } catch (error) {
-//       console.log("Error in checkout ", error);
-//     } finally {
-//       setLoader(false);
-//     }
-//   };
-
-//   const getTodaysAttendance = async () => {
-//     try {
-//       setLoader(true);
-//       if (userId) {
-//         dispatch(
-//           getAttendanceApi({
-//             isToday: true,
-//             body: {
-//               user_id: userId,
-//               start_date: getFormatedDate(new Date(), "YYYY-MM-DD"),
-//               end_date: getFormatedDate(new Date(), "YYYY-MM-DD"),
-//             },
-//           })
-//         );
-//       }
-//     } catch (error) {
-//       console.log("error in getAttendance");
-//     } finally {
-//       setLoader(false);
-//     }
-//   };
-
-//   const toggleCheckInOut = async () => {
-//     // setIsOn(!isOn)
-//     if (!isCheckedIn && selectedRegion) {
-//       const image: ImagePickerAsset | false = await openCamera();
-
-//       if (image !== false && image.uri !== undefined) {
-//         console.log("start checking in");
-//         await checkInApiCall(image);
-//         // setCheckInPhoto(image)
-//       }
-//     } else if (isCheckedIn && !isCheckedOut && selectedRegion) {
-//       setIsModalVisible(true);
-//     }
-//   };
-
-//   const gotoTimeSheet = () => {
-//     router.push("/(routes)/attendanceTimeline");
-//   };
-
-//   useEffect(() => {
-//     getTodaysAttendance();
-//   }, [dispatch, isCheckedIn, isCheckedOut]);
-
-//   //   useEffect(() => {
-//   //     if (success) {
-//   //       if (!isCheckedIn) {
-//   //         setIsCheckedIn(true);
-//   //         setIsOn(true);
-//   //         setCheckIn(getFormatedDate(new Date(Date.now()), "HH:mm"));
-//   //       }
-//   //       if (isCheckedIn && !isCheckedOut) {
-//   //         setIsCheckedOut(true);
-//   //         setIsOn(false);
-//   //         setCheckOut(getFormatedDate(new Date(Date.now()), "HH:mm"));
-//   //       }
-//   //       Toast.show({
-//   //         type: "success",
-//   //         text1: success,
-//   //       });
-//   //       dispatch(setSuccess(null));
-//   //     }
-//   //   }, [success]);
-
-//   useEffect(() => {
-//     if (selectedRegion && !outOfRange) {
-//       setIsDisabled(false);
-//     }
-//     if (isCheckedOut || outOfRange) {
-//       setIsDisabled(true);
-//     }
-//   }, [isCheckedOut, selectedRegion, outOfRange]);
-
-//   useEffect(() => {
-//     if (distance) {
-//       if (selectedRegion === "office") {
-//         if (distance > 500) {
-//           setOutOfRange(true);
-//         } else {
-//           setOutOfRange(false);
-//         }
-//       } else {
-//         if (
-//           selectedRegion?.radius &&
-//           distance - Number(selectedRegion?.radius) > 0
-//         ) {
-//           setOutOfRange(true);
-//         } else {
-//           setOutOfRange(false);
-//         }
-//       }
-//     }
-//   }, [distance, selectedRegion]);
-
-//   useEffect(() => {
-//     if (selectedRegion === "office") {
-//       setMarkerLocation({
-//         latitude: 22.6532,
-//         longitude: 88.3832,
-//         latitudeDelta: 0.0922,
-//         longitudeDelta: 0.0421,
-//       });
-//     } else if (selectedRegion) {
-//       if (selectedRegion.geolocation) {
-//         const lat = selectedRegion.geolocation.split(",")[0];
-//         const long = selectedRegion.geolocation.split(",")[1];
-
-//         if (Number(lat) && Number(long)) {
-//           setMarkerLocation({
-//             latitude: Number(lat),
-//             longitude: Number(long),
-//             latitudeDelta: 0.0922,
-//             longitudeDelta: 0.0421,
-//           });
-//         }
-//       }
-//     }
-//   }, [selectedRegion]);
-
-//   //   useEffect(() => {
-//   //     if (todayAttendance) {
-//   //       setCheckIn(todayAttendance.clock_in);
-//   //       setCheckOut(todayAttendance.clock_out);
-//   //       setIsCheckedIn(todayAttendance.clock_in ? true : false);
-//   //       setIsCheckedOut(todayAttendance.clock_out ? true : false);
-//   //       setIsOn(
-//   //         todayAttendance.clock_in && !todayAttendance.clock_out ? true : false
-//   //       );
-//   //     }
-//   //   }, [todayAttendance]);
-
-//   return (
-//     <>
-//       {loader ?? <Loader />}
-//       <View style={[{ flex: 1 }, commonStyles.grayContainer]}>
-//         <Header isBack={true} title="Mark Attendance" isRightIcon={false} />
-//         <ScrollView
-//           contentContainerStyle={{}}
-//           showsVerticalScrollIndicator={false}
-//         >
-//           <View style={[styles.container]}>
-//             <View style={[styles.box1]}>
-//               <View style={styles.image}>
-//                 <Map
-//                   height={"100%"}
-//                   markerCoordinate={markerLocation}
-//                   radius={
-//                     selectedRegion === "office"
-//                       ? 500
-//                       : selectedRegion?.radius
-//                         ? Number(selectedRegion.radius)
-//                         : 500
-//                   }
-//                   setDistance={(distance) => setDistance(distance)}
-//                   setLocation={(loc) => setMyLocation(loc)}
-//                 />
-//               </View>
-//             </View>
-//             <View
-//               style={[
-//                 styles.box2,
-//                 {
-//                   height: windowHeight(40),
-//                 },
-//               ]}
-//             >
-//               <View style={styles.chipBox}>
-//                 <Text style={styles.chipHeading}>Select Region</Text>
-//                 <ScrollView
-//                   horizontal
-//                   contentContainerStyle={styles.chipContainer}
-//                   showsHorizontalScrollIndicator={false}
-//                 >
-//                   <Chip
-//                     text={"Office"}
-//                     activeColor={color.primary}
-//                     style={styles.chip}
-//                     isActive={selectedRegionName === "office"}
-//                     onPress={() => {
-//                       setSelectedRegionName("office");
-//                       setSelectedRegion("office");
-//                     }}
-//                   />
-//                   {area &&
-//                     area.map((item, index) => (
-//                       <Chip
-//                         key={index}
-//                         text={item.name}
-//                         activeColor={color.primary}
-//                         style={styles.chip}
-//                         isActive={selectedRegionName === item.name}
-//                         onPress={() => {
-//                           setSelectedRegion(item);
-//                           setSelectedRegionName(item.name);
-//                         }}
-//                       />
-//                     ))}
-//                 </ScrollView>
-//               </View>
-//               <CheckInOut
-//                 isOn={isOn}
-//                 onToggle={toggleCheckInOut}
-//                 isDisabled={isDisabled}
-//               />
-//               <View style={styles.TimeCardContainer}>
-//                 <TimeCard time={checkIn} title="Check In" width={"48%"} />
-//                 <TimeCard time={checkOut} title="Check Out" width={"48%"} />
-//               </View>
-//               {/*
-//             <View
-//               style={[
-//                 styles.imageBox,
-//                 { height: checkInPhoto || checkOutPhoto ? '44%' : 0 }
-//               ]}
-//             >
-//               <View style={styles.imageContainer}>
-//                 {checkInPhoto && (
-//                   <Image
-//                     source={{ uri: checkInPhoto.uri }}
-//                     style={styles.checkinImage}
-//                   />
-//                 )}
-//               </View>
-//               <View style={styles.imageContainer}>
-//                 {checkOutPhoto && (
-//                   <Image
-//                     source={{ uri: checkOutPhoto.uri }}
-//                     style={styles.checkinImage}
-//                   />
-//                 )}
-//               </View>
-//             </View>
-
-//           */}
-//             </View>
-//           </View>
-//         </ScrollView>
-//         <View style={styles.btnContainer}>
-//           <Button
-//             backgroundColor={color.primary}
-//             title="View Timesheet"
-//             onPress={gotoTimeSheet}
-//           />
-//         </View>
-
-//         <AreYouSureModal
-//           isOpen={isModalVisible}
-//           setOpened={setIsModalVisible}
-//           onPress={onPressModal}
-//           title="Are you sure you want to check out"
-//         />
-//       </View>
-//     </>
-//   );
-// };
-
-// export default AttendanceScreen;
-import React, { useEffect, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
-
-import Header from "@/components/common/Header";
-import Button from "@/components/common/Button";
+import * as ImagePicker from "expo-image-picker";
+import * as Location from "expo-location";
+import React, { useEffect, useRef, useState } from "react";
+import { Alert, ScrollView, Text, View } from "react-native";
 
 import CheckInOut from "@/components/attendance/CheckInOut";
 import TimeCard from "@/components/attendance/TimeInOut";
+import Button from "@/components/common/Button";
+import Chip from "@/components/common/CommonChip";
+import Header from "@/components/common/Header";
 import Map from "@/components/common/Map";
 
-import color from "@/themes/Colors.themes";
-import { windowHeight } from "@/themes/Constants.themes";
+import FullscreenLoader from "@/components/common/FullScreenLoader";
 import { commonStyles } from "@/styles/common.style";
-import styles from "./Style";
+import color from "@/themes/Colors.themes";
+import { windowHeight, windowWidth } from "@/themes/Constants.themes";
 import { router } from "expo-router";
-import Chip from "@/components/common/CommonChip";
+import styles from "./Style";
 
-/* ------------------ STATIC DATA ------------------ */
+import AttendancePunchCard from "@/components/attendance/AttendancePunchCard";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 const STATIC_REGIONS = [
+  { id: "1", name: "Site A", radius: 300 },
+  { id: "2", name: "Site B", radius: 400 },
+];
+export const STATIC_ATTENDANCE_PUNCHES = [
   {
-    id: "1",
-    name: "Site A",
-    radius: 300,
-    geolocation: "22.5726,88.3639",
+    checkin: {
+      time: "10:00 AM",
+      image:
+        "https://scontent.fccu4-2.fna.fbcdn.net/v/t1.6435-9/129900655_417962905908963_9040196984544546132_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=DE7Uh0Nq69kQ7kNvwG50M6S&_nc_oc=AdkvlGsqb_df8A2feZJs2fQHtZGbfRReXvNcAN0unlqaqKrESUs6vBY4wwZKX4pKMi29KI01ly3RuKFAyrhI5dEk&_nc_zt=23&_nc_ht=scontent.fccu4-2.fna&_nc_gid=38XlZz84I7omJuYpZfIukQ&oh=00_AfqZfEH02Nz7DXIUaAkfqVoCZi8fjmWUuUaeFchVFC14WQ&oe=6989A937",
+      address:
+        "8C7W+2JX Ashram Road Jalpaiguri Division Cooch Behar, West Bengal 736101",
+    },
+    // checkout: {
+    //   time: "12:00 PM",
+    //   image:
+    //     "https://scontent.fccu25-1.fna.fbcdn.net/v/t39.30808-6/605754015_1573556913682884_5048807935786339510_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=bYNvfy9krkgQ7kNvwElHPFs&_nc_oc=AdnSORC7w4H7hJkkkv2oQBv54Utht9ddCyq3FaJdmWGUEhqsCmDYaAUtLtl_I1Tax4lPlDke3EB-ekT6ScpbPCJS&_nc_zt=23&_nc_ht=scontent.fccu25-1.fna&_nc_gid=CHObJA1HUhiT6YK4x3Z7MA&oh=00_AfrXDFap7ipPbfWJqRVdDDPG28uSyv_oYRLmVSrsxExotw&oe=696814B7",
+    //   address:
+    //     "8C7W+2JX Ashram Road Jalpaiguri Division Cooch Behar, West Bengal 736102",
+    // },
+    location: {
+      geolocation: {
+        lat: 23.899,
+        long: 23.56,
+      },
+    },
   },
   {
-    id: "2",
-    name: "Site B",
-    radius: 400,
-    geolocation: "22.5800,88.3700",
+    checkin: {
+      time: "09:15 AM",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+      address:
+        "8C7W+2JX Ashram Road Jalpaiguri Division Cooch Behar, West Bengal 736101",
+    },
+    checkout: {
+      time: "01:00 PM",
+      image: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde",
+      address:
+        "8C7W+2JX Ashram Road Jalpaiguri Division Cooch Behar, West Bengal 736101",
+    },
+    location: {
+      geolocation: {
+        lat: 99.899,
+        long: 11.56,
+      },
+    },
   },
 ];
 
-/* ------------------ SCREEN ------------------ */
-
 const AttendanceScreen = () => {
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const [selectedPunch, setSelectedPunch] = useState<any | null>(null);
+
   const [isOn, setIsOn] = useState(false);
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [isCheckedOut, setIsCheckedOut] = useState(false);
@@ -497,24 +81,109 @@ const AttendanceScreen = () => {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
 
+  const [checkInImage, setCheckInImage] = useState<string | null>(null);
+  const [checkOutImage, setCheckOutImage] = useState<string | null>(null);
+  const [currentAddress, setCurrentAddress] = useState<string | null>(null);
+
   const [selectedRegion, setSelectedRegion] = useState<any>();
   const [selectedRegionName, setSelectedRegionName] = useState<string>();
 
-  const [distance, setDistance] = useState<number>(120); // fake distance
+  const [distance, setDistance] = useState<number>(120);
   const [outOfRange, setOutOfRange] = useState(false);
 
-  /* ------------------ LOGIC ------------------ */
+  const [isCameraLoading, setIsCameraLoading] = useState(false);
 
-  const toggleCheckInOut = () => {
-    if (!isCheckedIn && !outOfRange) {
+  const requestPermissions = async () => {
+    const camera = await ImagePicker.requestCameraPermissionsAsync();
+    const location = await Location.requestForegroundPermissionsAsync();
+
+    if (camera.status !== "granted" || location.status !== "granted") {
+      Alert.alert(
+        "Permission required",
+        "Camera and Location permission is required"
+      );
+      return false;
+    }
+    return true;
+  };
+
+  const takePhotoAndLogLocation = async () => {
+    const allowed = await requestPermissions();
+    if (!allowed) return null;
+
+    try {
+      setIsCameraLoading(true);
+
+      const loc = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+
+      console.log("CURRENT LOCATION");
+      const { latitude, longitude } = loc.coords;
+
+      await getAddressFromCoords(latitude, longitude);
+
+      const result = await ImagePicker.launchCameraAsync({
+        quality: 0.6,
+      });
+
+      if (!result.canceled && result.assets[0]?.uri) {
+        return result.assets[0].uri;
+      }
+      return null;
+    } catch (err) {
+      Alert.alert("Error", "Unable to open camera");
+      return null;
+    } finally {
+      setIsCameraLoading(false);
+    }
+  };
+
+  const toggleCheckInOut = async () => {
+    if (!isCheckedIn && selectedRegion) {
+      const photoUri = await takePhotoAndLogLocation();
+      if (!photoUri) return;
+
+      setCheckInImage(photoUri);
       setIsCheckedIn(true);
       setIsOn(true);
       setCheckIn(new Date().toLocaleTimeString());
-    } else if (isCheckedIn && !isCheckedOut) {
+    } else if (isCheckedIn && !isCheckedOut && selectedRegion) {
+      const photoUri = await takePhotoAndLogLocation();
+      if (!photoUri) return;
+
+      setCheckOutImage(photoUri);
       setIsCheckedOut(true);
       setIsOn(false);
       setCheckOut(new Date().toLocaleTimeString());
     }
+  };
+  const getAddressFromCoords = async (latitude: number, longitude: number) => {
+    try {
+      const address = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude,
+      });
+
+      if (address.length > 0) {
+        const a = address[0];
+
+        const formattedAddress = `
+        ${a.name ?? ""} ${a.street ?? ""} ${a.streetNumber ?? ""}${a.subregion ?? ""}
+        ${a.city ?? ""}, ${a.region ?? ""}
+        ${a.postalCode ?? ""}
+        ${a.country ?? ""}  
+      `.trim();
+
+        console.log(" ADDRESS:", formattedAddress);
+        setCurrentAddress(formattedAddress);
+
+        return formattedAddress;
+      }
+    } catch (error) {
+      console.log("Reverse geocode error:", error);
+    }
+    return null;
   };
 
   useEffect(() => {
@@ -527,17 +196,10 @@ const AttendanceScreen = () => {
 
   useEffect(() => {
     if (!selectedRegion) return;
-
     const limit =
       selectedRegion === "office" ? 500 : Number(selectedRegion.radius);
-
     setOutOfRange(distance > limit);
   }, [distance, selectedRegion]);
-  const gotoTimeSheet = () => {
-    router.push("/(routes)/attendanceTimeline");
-  };
-
-  /* ------------------ UI ------------------ */
 
   return (
     <View style={[{ flex: 1 }, commonStyles.grayContainer]}>
@@ -545,67 +207,67 @@ const AttendanceScreen = () => {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
-          {/* MAP */}
           <View style={styles.box1}>
             <Map
               height={"100%"}
               radius={
-                selectedRegion === "office" ? 500 : selectedRegion?.radius
+                selectedRegion === "office" ? 900 : selectedRegion?.radius
               }
               setDistance={(d) => setDistance(d || 120)}
             />
           </View>
 
-          {/* CONTENT */}
-          <View style={[styles.box2, { height: windowHeight(40) }]}>
-            {/* REGION SELECT */}
+          <View style={styles.box2}>
             <View style={styles.chipBox}>
               <Text style={styles.chipHeading}>Select Region</Text>
 
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.chipContainer}
-              >
-                <Chip
-                  text="Office"
-                  activeColor={color.primary}
-                  isActive={selectedRegionName === "office"}
-                  onPress={() => {
-                    setSelectedRegionName("office");
-                    setSelectedRegion("office");
-                  }}
-                />
-
-                {STATIC_REGIONS.map((item) => (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View style={{ marginRight: windowHeight(0.5) }}>
                   <Chip
-                    key={item.id}
-                    text={item.name}
+                    text="Office"
                     activeColor={color.primary}
-                    isActive={selectedRegionName === item.name}
+                    isActive={selectedRegionName === "office"}
                     onPress={() => {
-                      setSelectedRegion(item);
-                      setSelectedRegionName(item.name);
+                      setSelectedRegionName("office");
+                      setSelectedRegion("office");
                     }}
                   />
+                </View>
+
+                {STATIC_REGIONS.map((item) => (
+                  <View
+                    key={item.id}
+                    style={{ marginRight: windowHeight(0.5) }}
+                  >
+                    <Chip
+                      text={item.name}
+                      activeColor={color.primary}
+                      isActive={selectedRegionName === item.name}
+                      onPress={() => {
+                        setSelectedRegion(item);
+                        setSelectedRegionName(item.name);
+                      }}
+                    />
+                  </View>
                 ))}
               </ScrollView>
             </View>
 
-            {/* CHECK IN / OUT */}
             <CheckInOut
               isOn={isOn}
               onToggle={toggleCheckInOut}
               isDisabled={isDisabled}
             />
 
-            {/* TIME CARDS */}
+            {STATIC_ATTENDANCE_PUNCHES.map((item, index) => (
+              <AttendancePunchCard key={index} index={index} punch={item} />
+            ))}
+
             <View style={styles.TimeCardContainer}>
               <TimeCard time={checkIn} title="Check In" width={"48%"} />
               <TimeCard time={checkOut} title="Check Out" width={"48%"} />
             </View>
 
-            {/* RANGE WARNING */}
             {outOfRange && (
               <Text style={{ color: "red", marginTop: 10 }}>
                 You are out of allowed range
@@ -615,14 +277,18 @@ const AttendanceScreen = () => {
         </View>
       </ScrollView>
 
-      {/* FOOTER */}
       <View style={styles.btnContainer}>
         <Button
           backgroundColor={color.primary}
           title="View Timesheet"
           onPress={() => router.push("/(routes)/attendanceTimeline")}
+          style={{ width: windowWidth(90) }}
         />
       </View>
+
+      {isCameraLoading && (
+        <FullscreenLoader visible={isCameraLoading} text="Opening Camera" />
+      )}
     </View>
   );
 };
