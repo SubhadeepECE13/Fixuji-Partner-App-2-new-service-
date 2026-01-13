@@ -24,6 +24,16 @@ export const DashBoardNavigationTab: NavigationTabProps[] = [
     image: Images.attendance,
     route: "/(routes)/attendance",
   },
+  {
+    title: "Apply Leave",
+    image: Images.attendance,
+    route: "/(routes)/applyLeave",
+  },
+  {
+    title: "Apply Loan",
+    image: Images.attendance,
+    route: "/(routes)/attendance",
+  },
 ];
 
 export const ORDERS_SCREEN_TABS: TabItem[] = [
