@@ -112,7 +112,7 @@ const AttendanceTimelineScreen = () => {
         ]);
 
         setLoading(false);
-      }, 1000);
+      }, 100);
     };
 
     fetchAttendance();
