@@ -1,26 +1,8 @@
-import React, { useRef, useMemo } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import dayjs from "dayjs";
-import ModernDatePicker from "react-native-modern-datepicker";
-import { getFormatedDate } from "react-native-modern-datepicker";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import Header from "@/components/common/Header";
-import Input from "@/components/common/Input";
+import { applyLeaveValidationSchema } from "@/components/applyLeave/applyLeave.validation";
 import Button from "@/components/common/Button";
-import CustomBottomSheetModal from "@/components/common/CustomBottomSheetModal";
+import Header from "@/components/common/Header";
 import { CustomIcon } from "@/components/common/Icon";
+import Input from "@/components/common/Input";
 import color from "@/themes/Colors.themes";
 import {
   fontSizes,
@@ -29,11 +11,25 @@ import {
 } from "@/themes/Constants.themes";
 import fonts from "@/themes/Fonts.themes";
 import { calculateDays } from "@/utils/Helpers";
-import { applyLeaveValidationSchema } from "@/components/applyLeave/applyLeave.validation";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { yupResolver } from "@hookform/resolvers/yup";
+import dayjs from "dayjs";
+import React, { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { getFormatedDate } from "react-native-modern-datepicker";
 
-import SelectBottomSheet from "@/components/applyLeave/SelectBottomSheet";
 import DatePickerBottomSheet from "@/components/applyLeave/DatePickerBottomSheet";
-import ApplyLeaveHeaderCard from "@/components/applyLeave/ApplyLeaveHeaderCard";
+import SelectBottomSheet from "@/components/applyLeave/SelectBottomSheet";
+import HeaderCard from "@/components/common/HeaderCard";
 
 interface FormData {
   leaveType: string;
@@ -52,8 +48,9 @@ const LEAVE_TYPES = [
 
 const ApplyLeaveScreen = () => {
   const leaveTypeSheetRef = useRef<BottomSheetModal>(null);
-  const startDateSheetRef = useRef<BottomSheetModal>(null);
-  const endDateSheetRef = useRef<BottomSheetModal>(null);
+  const [activeDatePicker, setActiveDatePicker] = useState<
+    "start" | "end" | null
+  >(null);
 
   const { control, handleSubmit, watch, setValue } = useForm<FormData>({
     resolver: yupResolver(applyLeaveValidationSchema),
@@ -73,7 +70,7 @@ const ApplyLeaveScreen = () => {
 
   const handleStartDateChange = (date: string) => {
     setValue("startDate", date);
-    startDateSheetRef.current?.dismiss();
+    setActiveDatePicker(null);
     if (endDate && dayjs(date).isAfter(dayjs(endDate))) {
       setValue("endDate", "");
     }
@@ -81,7 +78,7 @@ const ApplyLeaveScreen = () => {
 
   const handleEndDateChange = (date: string) => {
     setValue("endDate", date);
-    endDateSheetRef.current?.dismiss();
+    setActiveDatePicker(null);
   };
 
   const handleLeaveTypeSelect = (value: string) => {
@@ -138,7 +135,13 @@ const ApplyLeaveScreen = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          <ApplyLeaveHeaderCard data={leaveBalance} />
+          <HeaderCard
+            items={[
+              { label: "Total", value: leaveBalance.total },
+              { label: "Used", value: leaveBalance.used },
+              { label: "Available", value: leaveBalance.available },
+            ]}
+          />
 
           <View style={styles.formCard}>
             <Text style={styles.sectionTitle}>Leave Details</Text>
@@ -158,7 +161,15 @@ const ApplyLeaveScreen = () => {
               title="Start Date"
               placeholder="Select Start Date"
               type="select"
-              onSelectPress={() => startDateSheetRef.current?.present()}
+              onSelectPress={() => setActiveDatePicker("start")}
+            />
+            <DatePickerBottomSheet
+              title="Select Start Date"
+              visible={activeDatePicker === "start"}
+              selectedDate={startDate || today}
+              minimumDate={today}
+              onDateChange={handleStartDateChange}
+              onClose={() => setActiveDatePicker(null)}
             />
             <Input
               control={control}
@@ -166,7 +177,15 @@ const ApplyLeaveScreen = () => {
               title="End Date"
               placeholder="Select End Date"
               type="select"
-              onSelectPress={() => endDateSheetRef.current?.present()}
+              onSelectPress={() => setActiveDatePicker("end")}
+            />
+            <DatePickerBottomSheet
+              title="Select End Date"
+              visible={activeDatePicker === "end"}
+              selectedDate={endDate || startDate || today}
+              minimumDate={startDate || today}
+              onDateChange={handleEndDateChange}
+              onClose={() => setActiveDatePicker(null)}
             />
 
             {daysCount > 0 && (
@@ -211,22 +230,6 @@ const ApplyLeaveScreen = () => {
         data={LEAVE_TYPES}
         selectedLabel={leaveType}
         onSelect={handleLeaveTypeSelect}
-      />
-
-      <DatePickerBottomSheet
-        ref={startDateSheetRef}
-        title="Select Start Date"
-        selectedDate={startDate || today}
-        minimumDate={today}
-        onDateChange={handleStartDateChange}
-      />
-
-      <DatePickerBottomSheet
-        ref={endDateSheetRef}
-        title="Select End Date"
-        selectedDate={endDate || startDate || today}
-        minimumDate={startDate || today}
-        onDateChange={handleEndDateChange}
       />
     </View>
   );

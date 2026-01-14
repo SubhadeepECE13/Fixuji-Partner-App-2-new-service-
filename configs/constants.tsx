@@ -32,7 +32,7 @@ export const DashBoardNavigationTab: NavigationTabProps[] = [
   {
     title: "Apply Loan",
     image: Images.attendance,
-    route: "/(routes)/attendance",
+    route: "/(routes)/applyLoan",
   },
 ];
 

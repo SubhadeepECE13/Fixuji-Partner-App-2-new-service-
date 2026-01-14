@@ -75,13 +75,11 @@
 //     alignItems: "center",
 //   },
 // });
-import React, { forwardRef, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Text, StyleSheet, Platform, View } from "react-native";
-import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import CustomBottomSheetModal from "@/components/common/CustomBottomSheetModal";
 import dayjs from "dayjs";
 import color from "@/themes/Colors.themes";
 import fonts from "@/themes/Fonts.themes";
@@ -93,69 +91,113 @@ import {
 
 interface Props {
   title: string;
+  visible: boolean;
   selectedDate?: string;
   minimumDate?: string;
   onDateChange: (date: string) => void;
+  onClose?: () => void;
 }
 
-const DatePickerBottomSheet = forwardRef<BottomSheetModal, Props>(
-  ({ title, selectedDate, minimumDate, onDateChange }, ref) => {
-    const snapPoints = useMemo(() => ["40%"], []);
-    const [tempDate, setTempDate] = useState<Date>(
-      selectedDate ? dayjs(selectedDate).toDate() : new Date()
-    );
+const DatePickerBottomSheet = ({
+  title,
+  visible,
+  selectedDate,
+  minimumDate,
+  onDateChange,
+  onClose,
+}: Props) => {
+  const initialDate = useMemo(
+    () => (selectedDate ? dayjs(selectedDate).toDate() : new Date()),
+    [selectedDate]
+  );
+  const [tempDate, setTempDate] = useState<Date>(initialDate);
 
-    const handleChange = (event: DateTimePickerEvent, date?: Date) => {
-      if (event.type === "set" && date) {
-        setTempDate(date);
+  useEffect(() => {
+    // When opening the picker, sync local state with latest selectedDate
+    if (visible) setTempDate(initialDate);
+  }, [visible, initialDate]);
+
+  const handleChange = (event: DateTimePickerEvent, date?: Date) => {
+    // Android emits "dismissed" or "set". iOS keeps emitting "set" while scrolling.
+    if (event.type === "dismissed") {
+      onClose?.();
+      return;
+    }
+
+    if (date) {
+      setTempDate(date);
+      // On Android we can treat selection as final and close immediately.
+      if (Platform.OS !== "ios") {
         onDateChange(dayjs(date).format("YYYY-MM-DD"));
+        onClose?.();
       }
-    };
+    }
+  };
 
-    return (
-      <CustomBottomSheetModal
-        ref={ref}
-        snapPoints={snapPoints}
-        initialSnapPoint={0}
-        enablePanDownToClose
-      >
-        <View>
-          <BottomSheetView style={styles.header}>
-            <Text style={styles.headerText}>{title}</Text>
-          </BottomSheetView>
+  if (!visible) return null;
 
-          <BottomSheetView style={styles.container}>
-            <DateTimePicker
-              value={tempDate}
-              mode="date"
-              display={Platform.OS === "ios" ? "spinner" : "default"}
-              minimumDate={
-                minimumDate ? dayjs(minimumDate).toDate() : undefined
-              }
-              onChange={handleChange}
-              style={styles.picker}
-            />
-          </BottomSheetView>
-        </View>
-      </CustomBottomSheetModal>
-    );
-  }
-);
+  return (
+    <View style={styles.wrapper}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>{title}</Text>
+        {Platform.OS === "ios" && (
+          <Text
+            onPress={() => {
+              onDateChange(dayjs(tempDate).format("YYYY-MM-DD"));
+              onClose?.();
+            }}
+            style={styles.doneText}
+          >
+            Done
+          </Text>
+        )}
+      </View>
+
+      <View style={styles.container}>
+        <DateTimePicker
+          value={tempDate}
+          mode="date"
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          minimumDate={minimumDate ? dayjs(minimumDate).toDate() : undefined}
+          onChange={handleChange}
+          style={styles.picker}
+        />
+      </View>
+    </View>
+  );
+};
 
 export default DatePickerBottomSheet;
 
 const styles = StyleSheet.create({
+  wrapper: {
+    backgroundColor: color.whiteColor,
+    borderRadius: 12,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: color.borderBottomColor,
+    marginTop: windowHeight(1.5),
+  },
   header: {
     paddingVertical: windowHeight(1.5),
+    paddingHorizontal: windowWidth(4),
     justifyContent: "center",
     alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: color.borderBottomColor,
     backgroundColor: color.whiteColor,
+    flexDirection: "row",
   },
   headerText: {
     fontSize: fontSizes.md,
     fontFamily: fonts.bold,
+    color: color.primary,
+    flex: 1,
+    textAlign: "center",
+  },
+  doneText: {
+    fontSize: fontSizes.rg,
+    fontFamily: fonts.semiBold,
     color: color.primary,
   },
   container: {
