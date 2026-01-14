@@ -271,7 +271,7 @@ import color from "@/themes/Colors.themes";
 const AMOUNT = "65.16";
 const BANK = "SBI XX70";
 const TXN_ID = "WTXN24071917510GZY85UJOBHBHQ";
-const TICK_IMAGE = Images.successPayment;
+export const TICK_IMAGE = Images.successPayment;
 
 const RedeemSuccessScreen = () => {
   const scaleAnim = useRef(new Animated.Value(0)).current;

@@ -145,7 +145,18 @@ const ApplyLoanScreen = () => {
         />
 
         <View style={styles.listWrapper}>
-          <Text style={styles.sectionTitle}>Loan History</Text>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <Text style={styles.sectionTitle}>Loan History</Text>
+            <Button
+              title="Details"
+              onPress={() => router.push("/(routes)/loanDetails")}
+              width={windowWidth(20)}
+              height={windowHeight(4)}
+              titleStyle={{ fontSize: fontSizes.rg }}
+            />
+          </View>
           <FlatList
             data={PAYMENT_HISTORY}
             keyExtractor={(item) => item.id}
@@ -157,8 +168,6 @@ const ApplyLoanScreen = () => {
         </View>
 
         <View style={styles.formCard}>
-          <Text style={styles.sectionTitle}>Loan Details</Text>
-
           <Input
             control={control}
             name="amount"
@@ -232,7 +241,7 @@ const styles = StyleSheet.create({
   },
 
   historyAmount: {
-    fontSize: fontSizes.md,
+    fontSize: fontSizes.rg,
     fontFamily: fonts.semiBold,
     color: color.warningText,
   },
@@ -240,9 +249,9 @@ const styles = StyleSheet.create({
   formCard: {
     backgroundColor: color.whiteColor,
     borderRadius: 12,
-    padding: windowWidth(4),
+    padding: windowWidth(3),
     flexShrink: 0,
-    marginBottom: windowHeight(3),
+    marginBottom: windowHeight(1),
   },
 
   sectionTitle: {
