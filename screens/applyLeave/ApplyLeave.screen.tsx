@@ -24,33 +24,48 @@ import {
   StyleSheet,
   Text,
   View,
+  TouchableOpacity,
 } from "react-native";
 import { getFormatedDate } from "react-native-modern-datepicker";
+import Toast from "react-native-toast-message";
 
 import DatePickerBottomSheet from "@/components/applyLeave/DatePickerBottomSheet";
 import SelectBottomSheet from "@/components/applyLeave/SelectBottomSheet";
 import HeaderCard from "@/components/common/HeaderCard";
+import CustomSkeletonLoader from "@/components/common/CustomSkeletonLoader";
+import { useAppDispatch, useAppSelector } from "@/store/Reduxhook";
+import {
+  applyLeaveApi,
+  getLeaveBalanceByVendorIdAndFinancialYear,
+  getLeaveType,
+} from "@/store/actions/leave/leave.actions";
+import { resetLeaveState } from "@/store/reducers/leave/leaveSlice";
+import { useEffect } from "react";
 
 interface FormData {
   leaveType: string;
   startDate: string;
   endDate: string;
   reason: string;
+  halfDays?: string[];
 }
 
-const LEAVE_TYPES = [
-  { label: "Sick Leave", value: "sick" },
-  { label: "Casual Leave", value: "casual" },
-  { label: "Earned Leave", value: "earned" },
-  { label: "Personal Leave", value: "personal" },
-  { label: "Emergency Leave", value: "emergency" },
-];
-
 const ApplyLeaveScreen = () => {
+  const dispatch = useAppDispatch();
+  const { loading, success, error, leaveTypes, leaveBalance } = useAppSelector(
+    (state) => state.leave
+  );
+  const { user } = useAppSelector((state) => state.user);
+
   const leaveTypeSheetRef = useRef<BottomSheetModal>(null);
   const [activeDatePicker, setActiveDatePicker] = useState<
     "start" | "end" | null
   >(null);
+  const [selectedLeaveType, setSelectedLeaveType] = useState<any>(null);
+  const [halfDayDates, setHalfDayDates] = useState<{
+    [key: string]: "first" | "second";
+  }>({});
+  const [loadingBalance, setLoadingBalance] = useState(false);
 
   const { control, handleSubmit, watch, setValue } = useForm<FormData>({
     resolver: yupResolver(applyLeaveValidationSchema),
@@ -81,48 +96,122 @@ const ApplyLeaveScreen = () => {
     setActiveDatePicker(null);
   };
 
-  const handleLeaveTypeSelect = (value: string) => {
-    const selectedType = LEAVE_TYPES.find((type) => type.value === value);
-    setValue("leaveType", selectedType?.label || value);
+  const handleLeaveTypeSelect = async (value: string) => {
+    const selectedType = leaveTypes.find(
+      (type) => type.id.toString() === value
+    );
+    setValue("leaveType", selectedType?.value || value);
+    setSelectedLeaveType(selectedType);
+    setHalfDayDates({});
+
+    if (selectedType && user?.id) {
+      setLoadingBalance(true);
+      const currentYear = new Date().getFullYear();
+      await dispatch(
+        getLeaveBalanceByVendorIdAndFinancialYear(
+          user.id,
+          selectedType.id,
+          currentYear
+        )
+      );
+      setLoadingBalance(false);
+    }
+
     leaveTypeSheetRef.current?.dismiss();
   };
 
-  const onSubmit = async (data: FormData) => {
-    try {
-      const leaveTypeValue =
-        LEAVE_TYPES.find((type) => type.label === data.leaveType)?.value ||
-        data.leaveType;
+  useEffect(() => {
+    dispatch(getLeaveType());
+  }, []);
 
-      console.log("Leave Application Data:", {
-        ...data,
-        leaveType: leaveTypeValue,
-        days: daysCount,
-      });
+  useEffect(() => {
+    if (leaveTypes.length > 0 && !selectedLeaveType && user?.id) {
+      const firstLeaveType = leaveTypes[0];
+      setValue("leaveType", firstLeaveType.value);
+      setSelectedLeaveType(firstLeaveType);
 
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      Alert.alert(
-        "Success",
-        "Your leave application has been submitted successfully!",
-        [
-          {
-            text: "OK",
-            onPress: () => {},
-          },
-        ]
-      );
-    } catch (error) {
-      Alert.alert(
-        "Error",
-        "Failed to submit leave application. Please try again."
-      );
+      setLoadingBalance(true);
+      const currentYear = new Date().getFullYear();
+      dispatch(
+        getLeaveBalanceByVendorIdAndFinancialYear(
+          user.id,
+          firstLeaveType.id,
+          currentYear
+        )
+      ).finally(() => setLoadingBalance(false));
     }
+  }, [leaveTypes, user]);
+
+  useEffect(() => {
+    if (success) {
+      Toast.show({ type: "success", text1: success });
+      dispatch(resetLeaveState());
+      setValue("leaveType", "");
+      setValue("startDate", "");
+      setValue("endDate", "");
+      setValue("reason", "");
+      setHalfDayDates({});
+
+      if (leaveTypes.length > 0 && user?.id) {
+        const firstLeaveType = leaveTypes[0];
+        setValue("leaveType", firstLeaveType.value);
+        setSelectedLeaveType(firstLeaveType);
+
+        setLoadingBalance(true);
+        const currentYear = new Date().getFullYear();
+        dispatch(
+          getLeaveBalanceByVendorIdAndFinancialYear(
+            user.id,
+            firstLeaveType.id,
+            currentYear
+          )
+        ).finally(() => setLoadingBalance(false));
+      }
+    }
+    if (error) {
+      Toast.show({ type: "error", text1: error });
+      dispatch(resetLeaveState());
+    }
+  }, [success, error]);
+
+  const onSubmit = async (data: FormData) => {
+    if (!user?.id) {
+      Toast.show({ type: "error", text1: "User information not found" });
+      return;
+    }
+
+    const leaveTypeValue = leaveTypes.find(
+      (type) => type.value === data.leaveType
+    )?.id;
+
+    if (!leaveTypeValue) {
+      Toast.show({ type: "error", text1: "Please select a valid leave type" });
+      return;
+    }
+
+    const payload: any = {
+      vendorId: user.id,
+      leaveTypeId: leaveTypeValue,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      reason: data.reason,
+    };
+
+    if (
+      selectedLeaveType?.allowHalfDay &&
+      Object.keys(halfDayDates).length > 0
+    ) {
+      payload.halfDays = Object.keys(halfDayDates);
+    }
+
+    await dispatch(applyLeaveApi(payload));
   };
 
-  const leaveBalance = {
-    total: 15,
-    used: 3,
-    available: 12,
+  const leaveBalanceData = leaveBalance[0] || null;
+  const balanceInfo = {
+    total: leaveBalanceData?.quantity || 0,
+    used: 0,
+    available: leaveBalanceData?.quantity || 0,
   };
   return (
     <View style={styles.container}>
@@ -135,13 +224,21 @@ const ApplyLeaveScreen = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          <HeaderCard
-            items={[
-              { label: "Total", value: leaveBalance.total },
-              { label: "Used", value: leaveBalance.used },
-              { label: "Available", value: leaveBalance.available },
-            ]}
-          />
+          {loadingBalance ? (
+            <CustomSkeletonLoader
+              dWidth={"100%"}
+              dHeight={windowHeight(15)}
+              radius={windowWidth(1)}
+            />
+          ) : (
+            <HeaderCard
+              items={[
+                { label: "Total", value: balanceInfo.total },
+                { label: "Used", value: balanceInfo.used },
+                { label: "Available", value: balanceInfo.available },
+              ]}
+            />
+          )}
 
           <View style={styles.formCard}>
             <Text style={styles.sectionTitle}>Leave Details</Text>
@@ -207,6 +304,103 @@ const ApplyLeaveScreen = () => {
               </View>
             )}
 
+            {selectedLeaveType?.allowHalfDay && startDate && endDate && (
+              <View style={styles.halfDayContainer}>
+                <View style={styles.halfDayHeader}>
+                  <CustomIcon
+                    type="MaterialCommunityIcons"
+                    name="clock-outline"
+                    size={windowHeight(2.2)}
+                    color={color.primary}
+                  />
+                  <Text style={styles.halfDayTitle}>
+                    Half Day Selection (Optional)
+                  </Text>
+                </View>
+                {Array.from({ length: daysCount }, (_, i) => {
+                  const date = dayjs(startDate)
+                    .add(i, "day")
+                    .format("YYYY-MM-DD");
+                  const selectedHalf = halfDayDates[date];
+                  return (
+                    <View key={date} style={styles.halfDayItem}>
+                      <Text style={styles.halfDayDate}>
+                        {dayjs(date).format("DD MMM YYYY")}
+                      </Text>
+                      <View style={styles.halfDayOptions}>
+                        <TouchableOpacity
+                          style={styles.checkboxContainer}
+                          onPress={() => {
+                            if (selectedHalf === "first") {
+                              const newDates = { ...halfDayDates };
+                              delete newDates[date];
+                              setHalfDayDates(newDates);
+                            } else {
+                              setHalfDayDates({
+                                ...halfDayDates,
+                                [date]: "first",
+                              });
+                            }
+                          }}
+                        >
+                          <View
+                            style={[
+                              styles.checkbox,
+                              selectedHalf === "first" &&
+                                styles.checkboxChecked,
+                            ]}
+                          >
+                            {selectedHalf === "first" && (
+                              <CustomIcon
+                                type="MaterialCommunityIcons"
+                                name="check"
+                                size={windowHeight(1.8)}
+                                color={color.whiteColor}
+                              />
+                            )}
+                          </View>
+                          <Text style={styles.checkboxLabel}>First Half</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.checkboxContainer}
+                          onPress={() => {
+                            if (selectedHalf === "second") {
+                              const newDates = { ...halfDayDates };
+                              delete newDates[date];
+                              setHalfDayDates(newDates);
+                            } else {
+                              setHalfDayDates({
+                                ...halfDayDates,
+                                [date]: "second",
+                              });
+                            }
+                          }}
+                        >
+                          <View
+                            style={[
+                              styles.checkbox,
+                              selectedHalf === "second" &&
+                                styles.checkboxChecked,
+                            ]}
+                          >
+                            {selectedHalf === "second" && (
+                              <CustomIcon
+                                type="MaterialCommunityIcons"
+                                name="check"
+                                size={windowHeight(1.8)}
+                                color={color.whiteColor}
+                              />
+                            )}
+                          </View>
+                          <Text style={styles.checkboxLabel}>Second Half</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+
             <Input
               control={control}
               name="reason"
@@ -222,12 +416,16 @@ const ApplyLeaveScreen = () => {
             title="Submit Leave Application"
             backgroundColor={color.primary}
             onPress={handleSubmit(onSubmit)}
+            disabled={loading}
           />
         </View>
       </KeyboardAvoidingView>
       <SelectBottomSheet
         ref={leaveTypeSheetRef}
-        data={LEAVE_TYPES}
+        data={leaveTypes.map((type) => ({
+          label: type.value,
+          value: type.id.toString(),
+        }))}
         selectedLabel={leaveType}
         onSelect={handleLeaveTypeSelect}
       />
@@ -253,6 +451,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.whiteColor,
     borderRadius: 12,
     padding: windowWidth(4),
+    marginTop: windowHeight(2),
   },
   sectionTitle: {
     fontSize: fontSizes.lg,
@@ -303,9 +502,9 @@ const styles = StyleSheet.create({
   },
   daysCard: {
     backgroundColor: color.lightGreen,
-    borderRadius: 10,
-    padding: windowWidth(3.5),
-    marginTop: windowHeight(1),
+    borderRadius: 12,
+    padding: windowWidth(4),
+    marginTop: windowHeight(2),
     borderWidth: 1,
     borderColor: color.primary,
   },
@@ -335,5 +534,63 @@ const styles = StyleSheet.create({
     backgroundColor: color.whiteColor,
     borderTopWidth: 1,
     borderTopColor: color.lightGray,
+  },
+  halfDayContainer: {
+    marginTop: windowHeight(2),
+    backgroundColor: color.whiteColor,
+    borderRadius: 12,
+    padding: windowWidth(4),
+    borderWidth: 1,
+    borderColor: color.lightGray,
+  },
+  halfDayHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: windowWidth(2),
+    marginBottom: windowHeight(2),
+  },
+  halfDayTitle: {
+    fontSize: fontSizes.rg,
+    fontFamily: fonts.semiBold,
+    color: color.titleText,
+  },
+  halfDayItem: {
+    paddingVertical: windowHeight(1.5),
+    borderBottomWidth: 1,
+    borderBottomColor: color.lightGray,
+  },
+  halfDayDate: {
+    fontSize: fontSizes.rg,
+    fontFamily: fonts.medium,
+    color: color.titleText,
+    marginBottom: windowHeight(1),
+  },
+  halfDayOptions: {
+    flexDirection: "row",
+    gap: windowWidth(6),
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: windowWidth(2),
+  },
+  checkbox: {
+    width: windowWidth(5),
+    height: windowWidth(5),
+    borderRadius: windowWidth(1),
+    borderWidth: 2,
+    borderColor: color.appHeaderText,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: color.whiteColor,
+  },
+  checkboxChecked: {
+    backgroundColor: color.primary,
+    borderColor: color.primary,
+  },
+  checkboxLabel: {
+    fontSize: fontSizes.sm,
+    fontFamily: fonts.regular,
+    color: color.regularText,
   },
 });

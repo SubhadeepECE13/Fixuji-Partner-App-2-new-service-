@@ -13,6 +13,7 @@ import orderPaymentSliceReducer from "./services/orderPaymentSlice";
 import updateServiceReducer from "./services/updateServiceSlice";
 import completeOrderReducer from "./orders/completeOrderSlice";
 import startOrderReducer from "./orders/startOrderSlice";
+import leaveReducer from "./leave/leaveSlice";
 const rootReducer = combineReducers({
   user: userReducer,
   order: orderReducer,
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
   updateService: updateServiceReducer,
   completeOrder: completeOrderReducer,
   startOrder: startOrderReducer,
+  leave: leaveReducer,
 });
 
 export default rootReducer;
