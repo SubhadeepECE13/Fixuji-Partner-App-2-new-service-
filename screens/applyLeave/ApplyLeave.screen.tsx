@@ -1,7 +1,6 @@
 import { applyLeaveValidationSchema } from "@/components/applyLeave/applyLeave.validation";
 import Button from "@/components/common/Button";
 import Header from "@/components/common/Header";
-import { CustomIcon } from "@/components/common/Icon";
 import Input from "@/components/common/Input";
 import color from "@/themes/Colors.themes";
 import {
@@ -17,22 +16,22 @@ import dayjs from "dayjs";
 import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
   View,
-  TouchableOpacity,
 } from "react-native";
 import { getFormatedDate } from "react-native-modern-datepicker";
 import Toast from "react-native-toast-message";
 
 import DatePickerBottomSheet from "@/components/applyLeave/DatePickerBottomSheet";
+import HalfDaySelection from "@/components/applyLeave/HalfDaySelection";
 import SelectBottomSheet from "@/components/applyLeave/SelectBottomSheet";
-import HeaderCard from "@/components/common/HeaderCard";
+import TotalDaysCard from "@/components/applyLeave/TotalDaysCard";
 import CustomSkeletonLoader from "@/components/common/CustomSkeletonLoader";
+import HeaderCard from "@/components/common/HeaderCard";
 import { useAppDispatch, useAppSelector } from "@/store/Reduxhook";
 import {
   applyLeaveApi,
@@ -41,6 +40,7 @@ import {
 } from "@/store/actions/leave/leave.actions";
 import { resetLeaveState } from "@/store/reducers/leave/leaveSlice";
 import { useEffect } from "react";
+import { router } from "expo-router";
 
 interface FormData {
   leaveType: string;
@@ -241,8 +241,18 @@ const ApplyLeaveScreen = () => {
           )}
 
           <View style={styles.formCard}>
-            <Text style={styles.sectionTitle}>Leave Details</Text>
-
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <Text style={styles.sectionTitle}>Leave Details</Text>
+              <Button
+                title="Details"
+                onPress={() => router.push("/(routes)/leaveHistory")}
+                width={windowWidth(20)}
+                height={windowHeight(4)}
+                titleStyle={{ fontSize: fontSizes.rg }}
+              />
+            </View>
             <Input
               control={control}
               name="leaveType"
@@ -285,120 +295,16 @@ const ApplyLeaveScreen = () => {
               onClose={() => setActiveDatePicker(null)}
             />
 
-            {daysCount > 0 && (
-              <View style={styles.daysCard}>
-                <View style={styles.daysContent}>
-                  <CustomIcon
-                    type="Ionicons"
-                    name="time-outline"
-                    size={windowHeight(2.8)}
-                    color={color.primary}
-                  />
-                  <View style={styles.daysTextContainer}>
-                    <Text style={styles.daysLabel}>Total Days</Text>
-                    <Text style={styles.daysValue}>
-                      {daysCount} {daysCount === 1 ? "day" : "days"}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            )}
+            {daysCount > 0 && <TotalDaysCard daysCount={daysCount} />}
 
             {selectedLeaveType?.allowHalfDay && startDate && endDate && (
-              <View style={styles.halfDayContainer}>
-                <View style={styles.halfDayHeader}>
-                  <CustomIcon
-                    type="MaterialCommunityIcons"
-                    name="clock-outline"
-                    size={windowHeight(2.2)}
-                    color={color.primary}
-                  />
-                  <Text style={styles.halfDayTitle}>
-                    Half Day Selection (Optional)
-                  </Text>
-                </View>
-                {Array.from({ length: daysCount }, (_, i) => {
-                  const date = dayjs(startDate)
-                    .add(i, "day")
-                    .format("YYYY-MM-DD");
-                  const selectedHalf = halfDayDates[date];
-                  return (
-                    <View key={date} style={styles.halfDayItem}>
-                      <Text style={styles.halfDayDate}>
-                        {dayjs(date).format("DD MMM YYYY")}
-                      </Text>
-                      <View style={styles.halfDayOptions}>
-                        <TouchableOpacity
-                          style={styles.checkboxContainer}
-                          onPress={() => {
-                            if (selectedHalf === "first") {
-                              const newDates = { ...halfDayDates };
-                              delete newDates[date];
-                              setHalfDayDates(newDates);
-                            } else {
-                              setHalfDayDates({
-                                ...halfDayDates,
-                                [date]: "first",
-                              });
-                            }
-                          }}
-                        >
-                          <View
-                            style={[
-                              styles.checkbox,
-                              selectedHalf === "first" &&
-                                styles.checkboxChecked,
-                            ]}
-                          >
-                            {selectedHalf === "first" && (
-                              <CustomIcon
-                                type="MaterialCommunityIcons"
-                                name="check"
-                                size={windowHeight(1.8)}
-                                color={color.whiteColor}
-                              />
-                            )}
-                          </View>
-                          <Text style={styles.checkboxLabel}>First Half</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={styles.checkboxContainer}
-                          onPress={() => {
-                            if (selectedHalf === "second") {
-                              const newDates = { ...halfDayDates };
-                              delete newDates[date];
-                              setHalfDayDates(newDates);
-                            } else {
-                              setHalfDayDates({
-                                ...halfDayDates,
-                                [date]: "second",
-                              });
-                            }
-                          }}
-                        >
-                          <View
-                            style={[
-                              styles.checkbox,
-                              selectedHalf === "second" &&
-                                styles.checkboxChecked,
-                            ]}
-                          >
-                            {selectedHalf === "second" && (
-                              <CustomIcon
-                                type="MaterialCommunityIcons"
-                                name="check"
-                                size={windowHeight(1.8)}
-                                color={color.whiteColor}
-                              />
-                            )}
-                          </View>
-                          <Text style={styles.checkboxLabel}>Second Half</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  );
-                })}
-              </View>
+              <HalfDaySelection
+                startDate={startDate}
+                endDate={endDate}
+                daysCount={daysCount}
+                halfDayDates={halfDayDates}
+                onHalfDayChange={setHalfDayDates}
+              />
             )}
 
             <Input
@@ -500,97 +406,11 @@ const styles = StyleSheet.create({
   dateText: {
     flex: 1,
   },
-  daysCard: {
-    backgroundColor: color.lightGreen,
-    borderRadius: 12,
-    padding: windowWidth(4),
-    marginTop: windowHeight(2),
-    borderWidth: 1,
-    borderColor: color.primary,
-  },
-  daysContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: windowWidth(3),
-  },
-  daysTextContainer: {
-    flex: 1,
-  },
-  daysLabel: {
-    fontSize: fontSizes.sm,
-    fontFamily: fonts.regular,
-    color: color.placeholderText,
-  },
-  daysValue: {
-    fontSize: fontSizes.lg,
-    fontFamily: fonts.semiBold,
-    color: color.primary,
-    marginTop: windowHeight(0.2),
-  },
-
   buttonContainer: {
     padding: windowWidth(4),
     paddingTop: windowHeight(1),
     backgroundColor: color.whiteColor,
     borderTopWidth: 1,
     borderTopColor: color.lightGray,
-  },
-  halfDayContainer: {
-    marginTop: windowHeight(2),
-    backgroundColor: color.whiteColor,
-    borderRadius: 12,
-    padding: windowWidth(4),
-    borderWidth: 1,
-    borderColor: color.lightGray,
-  },
-  halfDayHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: windowWidth(2),
-    marginBottom: windowHeight(2),
-  },
-  halfDayTitle: {
-    fontSize: fontSizes.rg,
-    fontFamily: fonts.semiBold,
-    color: color.titleText,
-  },
-  halfDayItem: {
-    paddingVertical: windowHeight(1.5),
-    borderBottomWidth: 1,
-    borderBottomColor: color.lightGray,
-  },
-  halfDayDate: {
-    fontSize: fontSizes.rg,
-    fontFamily: fonts.medium,
-    color: color.titleText,
-    marginBottom: windowHeight(1),
-  },
-  halfDayOptions: {
-    flexDirection: "row",
-    gap: windowWidth(6),
-  },
-  checkboxContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: windowWidth(2),
-  },
-  checkbox: {
-    width: windowWidth(5),
-    height: windowWidth(5),
-    borderRadius: windowWidth(1),
-    borderWidth: 2,
-    borderColor: color.appHeaderText,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: color.whiteColor,
-  },
-  checkboxChecked: {
-    backgroundColor: color.primary,
-    borderColor: color.primary,
-  },
-  checkboxLabel: {
-    fontSize: fontSizes.sm,
-    fontFamily: fonts.regular,
-    color: color.regularText,
   },
 });
