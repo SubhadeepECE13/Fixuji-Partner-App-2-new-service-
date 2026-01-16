@@ -79,7 +79,6 @@ const OrderCard: React.FC<Props> = ({ booking, settings, user }) => {
               </View>
             </View>
 
-            {/* Right side: Technician info */}
             <View style={styles.rightBox}>
               <CustomImage
                 imageUrl={booking.bookingVendors[0]?.vendor.vendorImg ?? ""}
@@ -96,7 +95,6 @@ const OrderCard: React.FC<Props> = ({ booking, settings, user }) => {
             </View>
           </View>
 
-          {/* Middle Section */}
           <View style={styles.middleRow}>
             <ContactActionsWrapper
               phone={booking.customer?.phoneNumber ?? ""}
@@ -106,7 +104,6 @@ const OrderCard: React.FC<Props> = ({ booking, settings, user }) => {
               order={booking}
               user={user}
               settings={settings}
-              // refreshFilters={refreshFilters}
             />
 
             <View style={styles.datetime}>
@@ -125,7 +122,6 @@ const OrderCard: React.FC<Props> = ({ booking, settings, user }) => {
             </View>
           </View>
 
-          {/* Bottom Address */}
           <Text style={styles.addressText}>
             {booking.bookingAddress?.landmark}
           </Text>

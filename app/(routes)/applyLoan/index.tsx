@@ -174,6 +174,7 @@ const ApplyLoanScreen = () => {
             placeholder="Enter Amount"
             title="Amount"
             keyboardType="decimal-pad"
+            titleStyle={{ fontSize: fontSizes.sm }}
           />
 
           <Input
@@ -181,6 +182,7 @@ const ApplyLoanScreen = () => {
             name="reason"
             placeholder="Enter reason for loan"
             title="Reason"
+            titleStyle={{ fontSize: fontSizes.sm }}
           />
         </View>
       </KeyboardAvoidingView>

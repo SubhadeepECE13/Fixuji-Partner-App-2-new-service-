@@ -260,6 +260,7 @@ const ApplyLeaveScreen = () => {
               placeholder="Select leave type"
               type="select"
               onSelectPress={() => leaveTypeSheetRef.current?.present()}
+              titleStyle={{ fontSize: fontSizes.sm }}
             />
 
             <Input
@@ -269,6 +270,7 @@ const ApplyLeaveScreen = () => {
               placeholder="Select Start Date"
               type="select"
               onSelectPress={() => setActiveDatePicker("start")}
+              titleStyle={{ fontSize: fontSizes.sm }}
             />
             <DatePickerBottomSheet
               title="Select Start Date"
@@ -285,6 +287,7 @@ const ApplyLeaveScreen = () => {
               placeholder="Select End Date"
               type="select"
               onSelectPress={() => setActiveDatePicker("end")}
+              titleStyle={{ fontSize: fontSizes.sm }}
             />
             <DatePickerBottomSheet
               title="Select End Date"
@@ -313,6 +316,7 @@ const ApplyLeaveScreen = () => {
               placeholder="Enter reason for leave"
               title="Reason"
               keyboardType="default"
+              titleStyle={{ fontSize: fontSizes.sm }}
             />
           </View>
         </ScrollView>
@@ -360,7 +364,7 @@ const styles = StyleSheet.create({
     marginTop: windowHeight(2),
   },
   sectionTitle: {
-    fontSize: fontSizes.lg,
+    fontSize: fontSizes.md,
     fontFamily: fonts.semiBold,
     color: color.titleText,
     marginBottom: windowHeight(2),

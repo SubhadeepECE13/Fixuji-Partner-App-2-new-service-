@@ -369,7 +369,7 @@ export default TabView;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // ✅ IMPORTANT FIX
+    flex: 1,
     paddingHorizontal: windowWidth(5),
   },
   tabsContainer: {

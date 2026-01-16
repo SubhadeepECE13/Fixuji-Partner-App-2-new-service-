@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   LeaveBalanceResponseByVendorIdAndYear,
+  LeaveHistoryResponse,
   LeaveType,
 } from "@/store/actions/leave/leave.types";
 
@@ -10,6 +11,7 @@ interface LeaveState {
   error: string | null;
   leaveTypes: LeaveType[];
   leaveBalance: LeaveBalanceResponseByVendorIdAndYear[];
+  leaveHistory: LeaveHistoryResponse[];
 }
 
 const initialState: LeaveState = {
@@ -18,6 +20,7 @@ const initialState: LeaveState = {
   error: null,
   leaveTypes: [],
   leaveBalance: [],
+  leaveHistory: [],
 };
 
 export const leaveSlice = createSlice({
@@ -42,7 +45,9 @@ export const leaveSlice = createSlice({
     ) => {
       state.leaveBalance = action.payload;
     },
-
+    setleaveHistory: (state, action: PayloadAction<LeaveHistoryResponse[]>) => {
+      state.leaveHistory = action.payload;
+    },
     resetLeaveState: (state) => {
       state.loading = false;
       state.success = null;
@@ -58,6 +63,7 @@ export const {
   setLeaveTypes,
   resetLeaveState,
   setleaveBalance,
+  setleaveHistory,
 } = leaveSlice.actions;
 
 export default leaveSlice.reducer;

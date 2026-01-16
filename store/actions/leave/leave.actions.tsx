@@ -3,12 +3,15 @@ import {
   setLoading,
   setError,
   setSuccess,
+  setleaveHistory,
 } from "@/store/reducers/leave/leaveSlice";
 import { AppDispatch } from "@/store/Store";
 import {
   ApplyLeaveRequest,
   FixedSearchLeaveBalanceResponse,
+  FixedSearchLeaveHistoryResponse,
   FixedSearchLeaveTypeResponse,
+  LeaveHistoryResponse,
 } from "./leave.types";
 import {
   setLeaveTypes,
@@ -117,5 +120,52 @@ export const getLeaveBalanceByVendorIdAndFinancialYear =
       dispatch(setleaveBalance(leaveBalance));
     } catch (error) {
       dispatch(setError("Failed to fetch leave balance"));
+    }
+  };
+
+export const getLeaveHistory =
+  (vendorId: number) => async (dispatch: AppDispatch) => {
+    try {
+      const res = await appAxios.post<FixedSearchLeaveHistoryResponse>(
+        "/common/fixedSearch",
+        {
+          pageNo: 1,
+          pageSize: 10,
+          shortCode: "LEAVE_REQUEST",
+          searchColumns: [],
+          searchText: "",
+          sortBy: "createdAt",
+          sortDir: "DESC",
+          fixedSearch: {
+            isActive: {
+              type: "boolean",
+              value: [true],
+            },
+            vendorId: {
+              type: "number",
+              value: [vendorId],
+            },
+          },
+          fixedNotSearch: {},
+          includes: {
+            leaveRequestDays: {
+              where: {
+                isActive: true,
+              },
+            },
+          },
+        }
+      );
+
+      const leaveHistory = res.data.data.data ?? [];
+
+      console.log(
+        "Leave History Api Response from api :::::::::>>>>>>>>>",
+        leaveHistory
+      );
+
+      dispatch(setleaveHistory(leaveHistory));
+    } catch (error) {
+      dispatch(setError("Failed to fetch leave History"));
     }
   };

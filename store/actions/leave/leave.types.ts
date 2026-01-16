@@ -43,3 +43,30 @@ export interface FixedSearchLeaveBalanceResponse {
   data: LeaveBalancePagination;
   message: string;
 }
+
+export interface LeaveHistoryResponse {
+  id: number;
+  refNo: string;
+  vendorId: number;
+  leaveTypeId: number;
+  leaveType: LeaveType;
+  startDate: Date;
+  endDate: Date;
+  totalDays: number;
+  reason: string;
+  status: "APPROVED" | "PENDING" | "REJECTED";
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface LeaveHistoryPagination {
+  data: LeaveHistoryResponse[];
+  totalRecords: number;
+  currentPageNumber: number;
+  pageSize: number;
+  lastPageNumber: number;
+}
+export interface FixedSearchLeaveHistoryResponse {
+  success: boolean;
+  data: LeaveHistoryPagination;
+  message: string;
+}
