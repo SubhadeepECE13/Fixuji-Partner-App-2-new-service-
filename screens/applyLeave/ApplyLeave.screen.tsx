@@ -300,11 +300,20 @@ const ApplyLeaveScreen = () => {
 
             {daysCount > 0 && <TotalDaysCard daysCount={daysCount} />}
 
-            {selectedLeaveType?.allowHalfDay && startDate && endDate && (
+            {/* {selectedLeaveType?.allowHalfDay && startDate && endDate && (
               <HalfDaySelection
                 startDate={startDate}
                 endDate={endDate}
                 daysCount={daysCount}
+                halfDayDates={halfDayDates}
+                onHalfDayChange={setHalfDayDates}
+                showOnlyBoundaryDates
+              />
+            )} */}
+            {selectedLeaveType?.allowHalfDay && startDate && endDate && (
+              <HalfDaySelection
+                startDate={startDate}
+                endDate={endDate}
                 halfDayDates={halfDayDates}
                 onHalfDayChange={setHalfDayDates}
               />

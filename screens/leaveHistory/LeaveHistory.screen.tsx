@@ -70,7 +70,7 @@ const LeaveHistoryScreen = () => {
             <CustomSkeletonLoader
               key={index}
               dWidth={"100%"}
-              dHeight={windowHeight(15)}
+              dHeight={windowHeight(10)}
               radius={windowWidth(3)}
             />
           ))}

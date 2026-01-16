@@ -1,6 +1,5 @@
-import { View, Text } from "react-native";
-import React from "react";
 import LeaveHistoryScreen from "@/screens/leaveHistory/LeaveHistory.screen";
+import React from "react";
 
 const LeaveHistory = () => {
   return <LeaveHistoryScreen />;

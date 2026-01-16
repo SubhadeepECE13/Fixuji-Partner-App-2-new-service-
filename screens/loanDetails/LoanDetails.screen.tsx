@@ -1,8 +1,9 @@
-import React from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import React, { useEffect, useState } from "react";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import Header from "@/components/common/Header";
+import Chip from "@/components/common/CommonChip";
 import { commonStyles } from "@/styles/common.style";
 import color from "@/themes/Colors.themes";
 import {
@@ -11,15 +12,15 @@ import {
   windowWidth,
 } from "@/themes/Constants.themes";
 import fonts from "@/themes/Fonts.themes";
-import Chip from "@/components/common/CommonChip";
+import CustomSkeletonLoader from "@/components/common/CustomSkeletonLoader";
 
 export type LoanHistory = {
   id: string;
   title: string;
   date: string;
   appliedAmount: number;
-  approvedAount: number;
-  type: "approved" | "rejected";
+  approvedAount?: number;
+  type: "pending" | "approved" | "rejected";
   status: string;
   time?: string;
 };
@@ -29,7 +30,7 @@ const WALLET_BALANCE = 12450;
 const LOAN_HISTORY: LoanHistory[] = [
   {
     id: "1",
-    title: "OD-260105-00007",
+    title: "LID-001",
     date: "04 Jan 2026",
     appliedAmount: 850,
     approvedAount: 500,
@@ -39,10 +40,9 @@ const LOAN_HISTORY: LoanHistory[] = [
   },
   {
     id: "2",
-    title: "OD-260105-00006",
+    title: "LID-002",
     date: "03 Jan 2026",
     appliedAmount: 1200,
-    approvedAount: 900,
     type: "rejected",
     status: "Completed",
     time: "01:29 PM",
@@ -50,44 +50,80 @@ const LOAN_HISTORY: LoanHistory[] = [
 ];
 
 const LoanDetailsScreen = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
   const renderItem = ({ item }: { item: LoanHistory }) => {
-    const isCredit = item.type === "approved";
+    const isApproved = item.type === "approved";
+    const isRejected = item.type === "rejected";
+    const isPending = item.type === "pending";
 
     return (
       <View style={styles.transactionCard}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.orderId}>{item.title}</Text>
-          <Text style={styles.dateText}>
-            {item.date}
-            {item.time ? ` • ${item.time}` : ""}
-          </Text>
-        </View>
+          <View style={styles.topRow}>
+            <Text style={styles.orderId}>{item.title}</Text>
+            <Text style={styles.dateText}>
+              {item.date}
+              {item.time ? ` • ${item.time}` : ""}
+            </Text>
+          </View>
 
-        <View style={{ alignItems: "flex-end" }}>
-          <Text
-            style={[
-              styles.amount,
-              { color: isCredit ? color.amountGreen : color.red },
-            ]}
-          >
-            ₹{item.approvedAount}
-          </Text>
           <Chip
             isActive
-            activeColor={isCredit ? color.amountGreen : color.red}
-            text={isCredit ? "Approved" : "Rejected"}
+            text={isApproved ? "Approved" : isRejected ? "Rejected" : "Pending"}
+            activeColor={
+              isApproved
+                ? color.amountGreen
+                : isRejected
+                  ? color.red
+                  : color.primary
+            }
             style={{
-              backgroundColor: isCredit ? color.lightGreen : color.lightRed,
-              width: windowWidth(20),
+              backgroundColor: isApproved
+                ? color.lightGreen
+                : isPending
+                  ? color.lightYellow
+                  : isRejected
+                    ? color.lightRed
+                    : color.lightGreen,
+              alignSelf: "flex-start",
+              marginTop: windowHeight(0.8),
             }}
           />
+        </View>
+
+        <View style={styles.amountContainer}>
+          <Text style={styles.appliedAmount}>₹{item.appliedAmount}</Text>
+
+          <Text
+            style={[
+              styles.approvedAmount,
+              {
+                color: isApproved
+                  ? color.amountGreen
+                  : isPending
+                    ? color.lightYellow
+                    : isRejected
+                      ? color.red
+                      : color.amountGreen,
+              },
+            ]}
+          >
+            ₹{item.approvedAount ?? 0}
+          </Text>
         </View>
       </View>
     );
   };
 
   return (
-    <View style={[{ flex: 1 }, commonStyles.grayContainer]}>
+    <View style={[styles.container, commonStyles.grayContainer]}>
       <Header isBack title="Loan Details" isRightIcon={false} />
 
       <LinearGradient
@@ -118,13 +154,30 @@ const LoanDetailsScreen = () => {
 
       <Text style={styles.sectionTitle}>Recent Transactions</Text>
 
-      <FlatList
-        data={LOAN_HISTORY}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: windowHeight(3) }}
-      />
+      {loading ? (
+        <View
+          style={{ marginHorizontal: windowWidth(5), gap: windowHeight(2) }}
+        >
+          {Array.from({ length: 3 }).map((_, index) => (
+            <CustomSkeletonLoader
+              key={index}
+              dWidth={"100%"}
+              dHeight={windowHeight(10)}
+              radius={windowWidth(3)}
+            />
+          ))}
+        </View>
+      ) : (
+        <FlatList
+          data={LOAN_HISTORY}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingBottom: windowHeight(3),
+          }}
+        />
+      )}
     </View>
   );
 };
@@ -132,6 +185,10 @@ const LoanDetailsScreen = () => {
 export default LoanDetailsScreen;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+
   walletCard: {
     marginHorizontal: windowWidth(5),
     marginTop: windowHeight(2),
@@ -179,8 +236,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     marginHorizontal: windowWidth(5),
     marginBottom: windowHeight(1.4),
-    padding: windowHeight(1.6),
+    paddingVertical: windowHeight(1.6),
+    paddingHorizontal: windowWidth(4),
     borderRadius: 16,
+    alignItems: "center",
+  },
+
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: windowWidth(2),
   },
 
   orderId: {
@@ -193,12 +259,25 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     fontFamily: fonts.regular,
     color: "#6B7280",
-    marginTop: 4,
   },
 
-  amount: {
+  amountContainer: {
+    alignItems: "flex-end",
+    justifyContent: "center",
+    marginLeft: windowWidth(3),
+  },
+
+  appliedAmount: {
+    fontSize: fontSizes.sm,
+    fontFamily: fonts.regular,
+    color: color.appHeaderText,
+    textDecorationLine: "line-through",
+    textDecorationColor: color.red,
+  },
+
+  approvedAmount: {
     fontSize: fontSizes.rg,
     fontFamily: fonts.bold,
+    marginTop: 4,
   },
 });
-

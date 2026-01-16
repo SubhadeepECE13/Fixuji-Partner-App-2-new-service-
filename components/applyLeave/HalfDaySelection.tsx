@@ -2,14 +2,17 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { CustomIcon } from "@/components/common/Icon";
 import color from "@/themes/Colors.themes";
-import { fontSizes, windowHeight, windowWidth } from "@/themes/Constants.themes";
+import {
+  fontSizes,
+  windowHeight,
+  windowWidth,
+} from "@/themes/Constants.themes";
 import fonts from "@/themes/Fonts.themes";
 import dayjs from "dayjs";
 
 interface HalfDaySelectionProps {
   startDate: string;
   endDate: string;
-  daysCount: number;
   halfDayDates: { [key: string]: "first" | "second" };
   onHalfDayChange: (dates: { [key: string]: "first" | "second" }) => void;
 }
@@ -17,12 +20,14 @@ interface HalfDaySelectionProps {
 const HalfDaySelection: React.FC<HalfDaySelectionProps> = ({
   startDate,
   endDate,
-  daysCount,
   halfDayDates,
   onHalfDayChange,
 }) => {
+  const dates = Array.from(new Set([startDate, endDate]));
+
   const handleCheckboxPress = (date: string, half: "first" | "second") => {
     const selectedHalf = halfDayDates[date];
+
     if (selectedHalf === half) {
       const newDates = { ...halfDayDates };
       delete newDates[date];
@@ -43,14 +48,16 @@ const HalfDaySelection: React.FC<HalfDaySelectionProps> = ({
         />
         <Text style={styles.halfDayTitle}>Half Day Selection (Optional)</Text>
       </View>
-      {Array.from({ length: daysCount }, (_, i) => {
-        const date = dayjs(startDate).add(i, "day").format("YYYY-MM-DD");
+
+      {dates.map((date) => {
         const selectedHalf = halfDayDates[date];
+
         return (
           <View key={date} style={styles.halfDayItem}>
             <Text style={styles.halfDayDate}>
               {dayjs(date).format("DD MMM YYYY")}
             </Text>
+
             <View style={styles.halfDayOptions}>
               <TouchableOpacity
                 style={styles.checkboxContainer}
@@ -73,6 +80,7 @@ const HalfDaySelection: React.FC<HalfDaySelectionProps> = ({
                 </View>
                 <Text style={styles.checkboxLabel}>First Half</Text>
               </TouchableOpacity>
+
               <TouchableOpacity
                 style={styles.checkboxContainer}
                 onPress={() => handleCheckboxPress(date, "second")}
@@ -102,6 +110,8 @@ const HalfDaySelection: React.FC<HalfDaySelectionProps> = ({
   );
 };
 
+export default HalfDaySelection;
+
 const styles = StyleSheet.create({
   halfDayContainer: {
     marginTop: windowHeight(2),
@@ -111,37 +121,44 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: color.lightGray,
   },
+
   halfDayHeader: {
     flexDirection: "row",
     alignItems: "center",
     gap: windowWidth(2),
     marginBottom: windowHeight(2),
   },
+
   halfDayTitle: {
     fontSize: fontSizes.rg,
     fontFamily: fonts.semiBold,
     color: color.titleText,
   },
+
   halfDayItem: {
     paddingVertical: windowHeight(1.5),
     borderBottomWidth: 1,
     borderBottomColor: color.lightGray,
   },
+
   halfDayDate: {
     fontSize: fontSizes.rg,
     fontFamily: fonts.medium,
     color: color.titleText,
     marginBottom: windowHeight(1),
   },
+
   halfDayOptions: {
     flexDirection: "row",
     gap: windowWidth(6),
   },
+
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: windowWidth(2),
   },
+
   checkbox: {
     width: windowWidth(5),
     height: windowWidth(5),
@@ -152,15 +169,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: color.whiteColor,
   },
+
   checkboxChecked: {
     backgroundColor: color.primary,
     borderColor: color.primary,
   },
+
   checkboxLabel: {
     fontSize: fontSizes.sm,
     fontFamily: fonts.regular,
     color: color.regularText,
   },
 });
-
-export default HalfDaySelection;
