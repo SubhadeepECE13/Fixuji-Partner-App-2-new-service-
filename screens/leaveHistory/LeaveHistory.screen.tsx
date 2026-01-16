@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
+import CustomSkeletonLoader from "@/components/common/CustomSkeletonLoader";
 import Header from "@/components/common/Header";
 import { CustomIcon } from "@/components/common/Icon";
-import CustomSkeletonLoader from "@/components/common/CustomSkeletonLoader";
 import LeaveHistoryCard from "@/components/leaveHistory/LeaveHistoryCard";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
+import { useAppDispatch, useAppSelector } from "@/store/Reduxhook";
+import { getLeaveHistory } from "@/store/actions/leave/leave.actions";
+import { LeaveHistoryResponse } from "@/store/actions/leave/leave.types";
+import { setIsLeaveHistoryEnd } from "@/store/reducers/leave/leaveSlice";
 import color from "@/themes/Colors.themes";
 import {
   fontSizes,
@@ -19,15 +22,6 @@ import {
   windowWidth,
 } from "@/themes/Constants.themes";
 import fonts from "@/themes/Fonts.themes";
-import dayjs from "dayjs";
-import Chip from "@/components/common/CommonChip";
-import { useAppSelector, useAppDispatch } from "@/store/Reduxhook";
-import { getLeaveHistory } from "@/store/actions/leave/leave.actions";
-import { setIsLeaveHistoryEnd } from "@/store/reducers/leave/leaveSlice";
-import {
-  FixedSearchLeaveHistoryResponse,
-  LeaveHistoryResponse,
-} from "@/store/actions/leave/leave.types";
 
 const LeaveHistoryScreen = () => {
   const dispatch = useAppDispatch();
@@ -61,38 +55,6 @@ const LeaveHistoryScreen = () => {
     setPage(1);
     fetchLeaveHistory(1);
   }, [user]);
-
-  const getStatusConfig = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "approved":
-        return {
-          textColor: color.green,
-          bgColor: color.amountGreen,
-          icon: "check-circle",
-        };
-
-      case "pending":
-        return {
-          textColor: color.yellow,
-          bgColor: color.yellow,
-          icon: "clock-outline",
-        };
-
-      case "rejected":
-        return {
-          textColor: color.red,
-          bgColor: color.red,
-          icon: "close-circle",
-        };
-
-      default:
-        return {
-          textColor: color.regularText,
-          bgColor: color.lightGray,
-          icon: "information",
-        };
-    }
-  };
 
   const renderLeaveItem = ({ item }: { item: LeaveHistoryResponse }) => (
     <LeaveHistoryCard item={item} />

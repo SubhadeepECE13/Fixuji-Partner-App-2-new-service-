@@ -161,6 +161,7 @@ export const getLeaveHistory =
       );
 
       const leaveHistory = res.data.data.data ?? [];
+      console.log("leave history data ", leaveHistory);
 
       if (page === 1) {
         dispatch(setleaveHistory(leaveHistory));

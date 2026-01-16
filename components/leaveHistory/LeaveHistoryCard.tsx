@@ -31,7 +31,10 @@ const LeaveHistoryCard: React.FC<LeaveHistoryCardProps> = ({ item }) => {
             size={windowHeight(2)}
             color={color.primary}
           />
-          <Text style={styles.leaveType}>{item.leaveType.value}</Text>
+
+          <Text style={styles.leaveType}>
+            {item.leaveType.value} - {String(item.totalDays)} Days
+          </Text>
         </View>
 
         <View style={styles.statusContainer}>
@@ -50,18 +53,17 @@ const LeaveHistoryCard: React.FC<LeaveHistoryCardProps> = ({ item }) => {
                 ? color.lightGreen
                 : isPending
                   ? color.pendingBg
-                  : isRejected
-                    ? color.lightRed
-                    : color.lightGreen,
+                  : color.lightRed,
               alignSelf: "flex-start",
             }}
           />
         </View>
       </View>
-      <Text style={styles.reasonText} numberOfLines={1}>
-        {item.reason}
-      </Text>
-
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <Text style={styles.reasonText} numberOfLines={1}>
+          {item.reason}
+        </Text>
+      </View>
       <View style={styles.dateRow}>
         <View style={styles.dateContainer}>
           <Text style={styles.dateValue}>
@@ -72,6 +74,7 @@ const LeaveHistoryCard: React.FC<LeaveHistoryCardProps> = ({ item }) => {
             {dayjs(item.endDate).format("DD MMM")}
           </Text>
         </View>
+
         <View style={styles.cardFooter}>
           <CustomIcon
             type="MaterialCommunityIcons"
@@ -102,59 +105,72 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+
   cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: windowHeight(0.5),
+    alignItems: "center",
+    marginBottom: windowHeight(0.4),
   },
+
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
     gap: windowWidth(1.5),
-    flex: 1,
   },
+
   leaveType: {
     fontSize: fontSizes.sm,
     fontFamily: fonts.semiBold,
     color: color.primary,
   },
+
+  reasonText: {
+    fontSize: fontSizes.xsm,
+    fontFamily: fonts.regular,
+    color: color.placeholderText,
+    lineHeight: windowHeight(1.8),
+    marginBottom: windowHeight(0.6),
+  },
+
   statusContainer: {
     alignItems: "flex-end",
-    gap: windowHeight(0.5),
   },
+
   dateRow: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: windowWidth(2),
     justifyContent: "space-between",
+    alignItems: "center",
   },
-  dateContainer: { flexDirection: "row", gap: windowHeight(1) },
+
+  dateContainer: {
+    flexDirection: "row",
+    gap: windowHeight(1),
+  },
+
   dateLabel: {
     fontSize: fontSizes.xsm,
     fontFamily: fonts.regular,
     color: color.titleText,
     alignSelf: "center",
   },
+
   dateValue: {
     fontSize: fontSizes.sm,
     fontFamily: fonts.semiBold,
     color: color.titleText,
+    backgroundColor: color.lightBackground,
   },
+
   cardFooter: {
     flexDirection: "row",
     alignItems: "center",
     gap: windowWidth(1.5),
   },
+
   appliedText: {
     fontSize: fontSizes.xsm,
     fontFamily: fonts.regular,
     color: color.primary,
-  },
-  reasonText: {
-    fontSize: fontSizes.xsm,
-    fontFamily: fonts.regular,
-    color: color.placeholderText,
-    marginBottom: windowHeight(0.5),
   },
 });
