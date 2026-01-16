@@ -34,6 +34,8 @@ export type Color = {
   lightBackground: string;
   background: string;
   borderBottomColor: string;
+  pendingText: string;
+  pendingBg: string;
 };
 
 const color: Color = {
@@ -65,7 +67,8 @@ const color: Color = {
   lightBlue: "rgba(217, 217, 251, 1)",
   lightGreen: "rgba(215, 250, 236, 1)",
   lightSkyBlue: "rgba(213, 242, 255, 1)",
-  lightYellow: "rgba(255, 231, 197, 1)",
+  // lightYellow: "rgba(255, 231, 197, 1)",
+  lightYellow: "rgb(249, 238, 223)",
   lightPink: "rgba(255, 210, 255, 1)",
   // lightRed: "rgba(255, 204, 211, 1)",
   lightRed: "rgb(248, 222, 226)",
@@ -74,6 +77,8 @@ const color: Color = {
   lightBackground: "#fafafa",
   background: "rgba(0,0,0,0.4)",
   borderBottomColor: "rgba(228, 230, 235, 1)",
+  pendingText: "rgb(180, 83, 9)",
+  pendingBg: "rgb(255, 237, 213)",
 };
 
 export default color;
