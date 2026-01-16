@@ -4,6 +4,8 @@ import {
   setError,
   setSuccess,
   setleaveHistory,
+  appendLeaveHistory,
+  setIsLeaveHistoryEnd,
 } from "@/store/reducers/leave/leaveSlice";
 import { AppDispatch } from "@/store/Store";
 import {
@@ -124,13 +126,14 @@ export const getLeaveBalanceByVendorIdAndFinancialYear =
   };
 
 export const getLeaveHistory =
-  (vendorId: number) => async (dispatch: AppDispatch) => {
+  (vendorId: number, page: number = 1, limit: number = 10) =>
+  async (dispatch: AppDispatch) => {
     try {
       const res = await appAxios.post<FixedSearchLeaveHistoryResponse>(
         "/common/fixedSearch",
         {
-          pageNo: 1,
-          pageSize: 10,
+          pageNo: page,
+          pageSize: limit,
           shortCode: "LEAVE_REQUEST",
           searchColumns: [],
           searchText: "",
@@ -159,12 +162,15 @@ export const getLeaveHistory =
 
       const leaveHistory = res.data.data.data ?? [];
 
-      console.log(
-        "Leave History Api Response from api :::::::::>>>>>>>>>",
-        leaveHistory
-      );
+      if (page === 1) {
+        dispatch(setleaveHistory(leaveHistory));
+      } else {
+        dispatch(appendLeaveHistory(leaveHistory));
+      }
 
-      dispatch(setleaveHistory(leaveHistory));
+      if (leaveHistory.length < limit) {
+        dispatch(setIsLeaveHistoryEnd(true));
+      }
     } catch (error) {
       dispatch(setError("Failed to fetch leave History"));
     }

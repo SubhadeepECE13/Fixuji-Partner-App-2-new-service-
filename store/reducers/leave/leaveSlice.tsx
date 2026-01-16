@@ -12,6 +12,7 @@ interface LeaveState {
   leaveTypes: LeaveType[];
   leaveBalance: LeaveBalanceResponseByVendorIdAndYear[];
   leaveHistory: LeaveHistoryResponse[];
+  isLeaveHistoryEnd: boolean;
 }
 
 const initialState: LeaveState = {
@@ -21,6 +22,7 @@ const initialState: LeaveState = {
   leaveTypes: [],
   leaveBalance: [],
   leaveHistory: [],
+  isLeaveHistoryEnd: false,
 };
 
 export const leaveSlice = createSlice({
@@ -48,6 +50,12 @@ export const leaveSlice = createSlice({
     setleaveHistory: (state, action: PayloadAction<LeaveHistoryResponse[]>) => {
       state.leaveHistory = action.payload;
     },
+    appendLeaveHistory: (state, action: PayloadAction<LeaveHistoryResponse[]>) => {
+      state.leaveHistory = [...state.leaveHistory, ...action.payload];
+    },
+    setIsLeaveHistoryEnd: (state, action: PayloadAction<boolean>) => {
+      state.isLeaveHistoryEnd = action.payload;
+    },
     resetLeaveState: (state) => {
       state.loading = false;
       state.success = null;
@@ -64,6 +72,8 @@ export const {
   resetLeaveState,
   setleaveBalance,
   setleaveHistory,
+  appendLeaveHistory,
+  setIsLeaveHistoryEnd,
 } = leaveSlice.actions;
 
 export default leaveSlice.reducer;

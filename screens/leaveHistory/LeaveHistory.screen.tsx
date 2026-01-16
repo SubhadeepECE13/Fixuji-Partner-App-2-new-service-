@@ -5,6 +5,7 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import Header from "@/components/common/Header";
 import { CustomIcon } from "@/components/common/Icon";
@@ -21,6 +22,7 @@ import dayjs from "dayjs";
 import Chip from "@/components/common/CommonChip";
 import { useAppSelector, useAppDispatch } from "@/store/Reduxhook";
 import { getLeaveHistory } from "@/store/actions/leave/leave.actions";
+import { setIsLeaveHistoryEnd } from "@/store/reducers/leave/leaveSlice";
 import {
   FixedSearchLeaveHistoryResponse,
   LeaveHistoryResponse,
@@ -28,14 +30,35 @@ import {
 
 const LeaveHistoryScreen = () => {
   const dispatch = useAppDispatch();
-  const { leaveHistory } = useAppSelector((state) => state.leave);
+  const { leaveHistory, isLeaveHistoryEnd } = useAppSelector(
+    (state) => state.leave
+  );
   const { user } = useAppSelector((state) => state.user);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+
+  const fetchLeaveHistory = async (pageNo = 1) => {
+    if (pageNo !== 1) {
+      if (loadingMore || isLeaveHistoryEnd) return;
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
+
+    if (user?.id) {
+      await dispatch(getLeaveHistory(user.id, pageNo, 10));
+    }
+
+    setPage(pageNo + 1);
+    setLoading(false);
+    setLoadingMore(false);
+  };
 
   useEffect(() => {
-    if (user?.id) {
-      dispatch(getLeaveHistory(user.id)).finally(() => setLoading(false));
-    }
+    dispatch(setIsLeaveHistoryEnd(false));
+    setPage(1);
+    fetchLeaveHistory(1);
   }, [user]);
 
   const getStatusConfig = (status: string) => {
@@ -152,7 +175,7 @@ const LeaveHistoryScreen = () => {
 
       {loading ? (
         <View style={styles.loaderContainer}>
-          {Array.from({ length: leaveHistory.length }).map((_, index) => (
+          {Array.from({ length: 3 }).map((_, index) => (
             <CustomSkeletonLoader
               key={index}
               dWidth={"100%"}
@@ -168,6 +191,15 @@ const LeaveHistoryScreen = () => {
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
+          onEndReached={() => fetchLeaveHistory(page)}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={styles.footerLoader}>
+                <ActivityIndicator size="small" color={color.primary} />
+              </View>
+            ) : null
+          }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <CustomIcon
@@ -318,5 +350,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.medium,
     color: color.placeholderText,
     marginTop: windowHeight(2),
+  },
+
+  footerLoader: {
+    paddingVertical: windowHeight(2),
+    alignItems: "center",
   },
 });
