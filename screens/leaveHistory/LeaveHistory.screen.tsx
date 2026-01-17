@@ -22,6 +22,8 @@ import {
   windowWidth,
 } from "@/themes/Constants.themes";
 import fonts from "@/themes/Fonts.themes";
+import ListEmpty from "@/components/common/ListEmpty";
+import { resetAndNavigate } from "@/utils/Helpers";
 
 const LeaveHistoryScreen = () => {
   const dispatch = useAppDispatch();
@@ -66,14 +68,41 @@ const LeaveHistoryScreen = () => {
 
       {loading ? (
         <View style={styles.loaderContainer}>
-          {Array.from({ length: 3 }).map((_, index) => (
             <CustomSkeletonLoader
-              key={index}
               dWidth={"100%"}
               dHeight={windowHeight(10)}
               radius={windowWidth(3)}
             />
-          ))}
+             <CustomSkeletonLoader
+              dWidth={"100%"}
+              dHeight={windowHeight(10)}
+              radius={windowWidth(3)}
+            />
+             <CustomSkeletonLoader
+              dWidth={"100%"}
+              dHeight={windowHeight(10)}
+              radius={windowWidth(3)}
+            />
+             <CustomSkeletonLoader
+              dWidth={"100%"}
+              dHeight={windowHeight(10)}
+              radius={windowWidth(3)}
+            />
+              <CustomSkeletonLoader
+              dWidth={"100%"}
+              dHeight={windowHeight(10)}
+              radius={windowWidth(3)}
+            />
+              <CustomSkeletonLoader
+              dWidth={"100%"}
+              dHeight={windowHeight(10)}
+              radius={windowWidth(3)}
+            />
+              <CustomSkeletonLoader
+              dWidth={"100%"}
+              dHeight={windowHeight(10)}
+              radius={windowWidth(3)}
+            />
         </View>
       ) : (
         <FlatList
@@ -92,15 +121,11 @@ const LeaveHistoryScreen = () => {
             ) : null
           }
           ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <CustomIcon
-                type="MaterialCommunityIcons"
-                name="calendar-remove-outline"
-                size={windowHeight(8)}
-                color={color.appHeaderText}
-              />
-              <Text style={styles.emptyText}>No leave history found</Text>
-            </View>
+            <ListEmpty
+              title="No Data Found"
+              btnTitle="Go to Dashboard"
+              onPress={() => resetAndNavigate("/dashboard")}
+            />
           }
         />
       )}
@@ -113,7 +138,7 @@ export default LeaveHistoryScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: color.lightBackground,
+    backgroundColor: color.bgGray,
   },
 
   listContent: {

@@ -43,7 +43,11 @@ export interface FixedSearchLeaveBalanceResponse {
   data: LeaveBalancePagination;
   message: string;
 }
-
+export interface LeaveRequestDaysResponse {
+  id: number;
+  date: Date;
+  isHalfDay: boolean;
+}
 export interface LeaveHistoryResponse {
   id: number;
   refNo: string;
@@ -54,6 +58,7 @@ export interface LeaveHistoryResponse {
   endDate: Date;
   totalDays: number;
   reason: string;
+  leaveRequestDays:LeaveRequestDaysResponse[]
   status: "APPROVED" | "PENDING" | "REJECTED";
   createdAt: Date;
   updatedAt: Date;
@@ -70,3 +75,4 @@ export interface FixedSearchLeaveHistoryResponse {
   data: LeaveHistoryPagination;
   message: string;
 }
+

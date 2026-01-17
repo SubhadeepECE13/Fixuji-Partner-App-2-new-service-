@@ -20,9 +20,16 @@ const LeaveHistoryCard: React.FC<LeaveHistoryCardProps> = ({ item }) => {
   const isApproved = item.status.toLowerCase() === "approved";
   const isPending = item.status.toLowerCase() === "pending";
   const isRejected = item.status.toLowerCase() === "rejected";
+const leaveDays = item.leaveRequestDays ?? [];
+const halfDayDates = leaveDays
+  .filter((day) => day.isHalfDay)
+  .map((day) => dayjs(day.date).format("DD"));
+
+
+
 
   return (
-    <TouchableOpacity activeOpacity={0.85} style={styles.leaveCard}>
+    <View style={styles.leaveCard}>
       <View style={styles.cardHeader}>
         <View style={styles.headerLeft}>
           <CustomIcon
@@ -73,8 +80,12 @@ const LeaveHistoryCard: React.FC<LeaveHistoryCardProps> = ({ item }) => {
           <Text style={styles.dateValue}>
             {dayjs(item.endDate).format("DD MMM")}
           </Text>
+          <View style={{alignSelf:'center'}}>
+           {halfDayDates.length > 0 && (
+            <Text style={styles.halfDayText}>(HD:   {halfDayDates.join(", ")})</Text>)}
+            </View>
         </View>
-
+        
         <View style={styles.cardFooter}>
           <CustomIcon
             type="MaterialCommunityIcons"
@@ -87,7 +98,7 @@ const LeaveHistoryCard: React.FC<LeaveHistoryCardProps> = ({ item }) => {
           </Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 
@@ -99,11 +110,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: windowWidth(3),
     marginBottom: windowHeight(1.5),
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 3,
   },
 
   cardHeader: {
@@ -159,7 +165,7 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     fontFamily: fonts.semiBold,
     color: color.titleText,
-    backgroundColor: color.lightBackground,
+
   },
 
   cardFooter: {
@@ -173,4 +179,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     color: color.primary,
   },
+  halfDayText: {
+  fontSize: fontSizes.xsm,
+  fontFamily: fonts.medium,
+  color: color.primary, 
+  alignItems:'center',
+},
+
 });
