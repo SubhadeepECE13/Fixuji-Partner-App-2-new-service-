@@ -207,6 +207,7 @@ interface MyMapProps {
   radius?: number;
   setDistance?: (distance: number) => void;
   setLocation?: (location: Coordinates) => void;
+  onMapReady: () => void;
 }
 
 const Map: React.FC<MyMapProps> = ({
@@ -214,7 +215,7 @@ const Map: React.FC<MyMapProps> = ({
   markerCoordinate,
   radius,
   setDistance,
-  setLocation,
+  setLocation,onMapReady
 }) => {
   const mapRef = useRef<MapView>(null);
   const [currentLocation, setCurrentLocation] = useState<Coordinates>();
@@ -265,6 +266,9 @@ const Map: React.FC<MyMapProps> = ({
             ref={mapRef}
             style={{ flex: 1, borderRadius: 15 }}
             initialRegion={currentLocation}
+            onMapReady={() => {
+          onMapReady?.(); 
+           }}
             provider={
               Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
             }

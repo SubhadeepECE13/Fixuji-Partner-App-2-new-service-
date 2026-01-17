@@ -30,6 +30,7 @@ type ChipProps = {
   iconType?: "MaterialCommunityIcons" | "Ionicons" | "FontAwesome";
   iconPosition?: "left" | "right";
   iconSize?: number;
+  disabled?: boolean;
 };
 
 const Chip = ({
@@ -41,6 +42,7 @@ const Chip = ({
   isActive,
   disableFeedback = false,
   iconName,
+  disabled,
   iconType = "MaterialCommunityIcons",
   iconPosition = "left",
   iconSize = windowHeight(1.6),
@@ -69,6 +71,7 @@ const Chip = ({
         },
         style,
       ]}
+       disabled={disabled}
     >
       {iconPosition === "left" && renderIcon()}
 
