@@ -32,6 +32,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import * as Notifications from "expo-notifications";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { LocationProvider } from "@/context/LocationContext";
 
 // Notifications.setNotificationHandler({
 //   handleNotification: async () => ({
@@ -71,7 +72,9 @@ export default function RootLayout() {
     <Provider store={store}>
       <PersistGate persistor={persistor} loading={null}>
         <SafeAreaProvider>
+          <LocationProvider>  
           <RootLayoutNav />
+          </LocationProvider>
         </SafeAreaProvider>
       </PersistGate>
     </Provider>
