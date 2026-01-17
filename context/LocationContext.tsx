@@ -119,8 +119,8 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({
         accuracy: highAccuracy
           ? Location.Accuracy.Highest
           : Location.Accuracy.Balanced,
-        timeInterval: highAccuracy ? 1000 : 5000, // ⏱
-        distanceInterval: highAccuracy ? 1 : 15,  // 📍
+        timeInterval: highAccuracy ? 1000 : 5000, 
+        distanceInterval: highAccuracy ? 1 : 15,  
       },
       (loc) => {
         setLocation({

@@ -61,6 +61,7 @@ const RedeemFailedScreen = () => {
         backgroundColor="#B7F397"
         titleStyle={{ color: "#1F2937", fontFamily: fonts.semiBold }}
         onPress={() => router.replace("/(routes)/wallet")}
+
       />
     </View>
   );

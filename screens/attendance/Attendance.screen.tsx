@@ -215,16 +215,12 @@ import { useCameraPermissions } from "expo-camera";
 import { useAppLocation } from "@/context/LocationContext";
 
 const STATIC_REGIONS = [
-  { id: "1", name: "Site A", radius: 300 },
-  { id: "2", name: "Site B", radius: 400 },
+  { id: "1", name: "Site A", radius: 30 },
+  { id: "2", name: "Site B", radius: 40 },
 ];
 
 const AttendanceScreen = () => {
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
-
   const [openCamera, setOpenCamera] = useState(false);
-  const [, requestCameraPermission] = useCameraPermissions();
-
   const [isOn, setIsOn] = useState(false);
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [isCheckedOut, setIsCheckedOut] = useState(false);
@@ -240,14 +236,18 @@ const AttendanceScreen = () => {
   const { setHighAccuracy } = useAppLocation();
 
 
-  useEffect(() => {
-    setHighAccuracy(true);
-    requestCameraPermission();
 
-    return () => {
-      setHighAccuracy(false);
-    };
-  }, []);
+  useEffect(() => {
+  const t = setTimeout(() => {
+    setHighAccuracy(true);
+  }, 300);
+
+  return () => {
+    clearTimeout(t);
+    setHighAccuracy(false);
+  };
+}, []);
+
 
   useEffect(() => {
     if (selectedRegion && !isCheckedOut) {
@@ -257,10 +257,11 @@ const AttendanceScreen = () => {
     }
   }, [selectedRegion, isCheckedOut]);
 
-  const toggleCheckInOut = () => {
-    if (!selectedRegion || !isMapReady) return;
-    setOpenCamera(true);
-  };
+const toggleCheckInOut = React.useCallback(() => {
+  if (!selectedRegion || !isMapReady) return;
+  setOpenCamera(true);
+}, [selectedRegion, isMapReady]);
+
 
   const handleCapture = () => {
     setOpenCamera(false);
@@ -286,7 +287,10 @@ const AttendanceScreen = () => {
             <Map
               height={"100%"}
               radius={selectedRegion?.radius}
-              onMapReady={() => setIsMapReady(true)}
+              onMapReady={() => {
+          setTimeout(() => setIsMapReady(true), 150);
+             }}
+              
             />
           </View>
 
@@ -300,7 +304,7 @@ const AttendanceScreen = () => {
                     <Chip
                       text={item.name}
                       activeColor={color.primary}
-                      disabled={!isMapReady}
+                      // disabled={!isMapReady}
                       isActive={selectedRegionName === item.name}
                       onPress={() => {
                         setSelectedRegion(item);
@@ -339,6 +343,8 @@ const AttendanceScreen = () => {
         visible={openCamera}
         onClose={() => setOpenCamera(false)}
         onCapture={handleCapture}
+        facing="front"
+        showFlipButton
       />
     </View>
   );
