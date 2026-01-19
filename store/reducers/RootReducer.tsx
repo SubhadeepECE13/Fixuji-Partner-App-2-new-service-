@@ -15,6 +15,7 @@ import completeOrderReducer from "./orders/completeOrderSlice";
 import startOrderReducer from "./orders/startOrderSlice";
 import leaveReducer from "./leave/leaveSlice";
 import checkinCheckoutReducer from "./checkin-checkout/checkinCheckoutSlice";
+import attendanceReducer from "./attendance/attendanceSlice";
 const rootReducer = combineReducers({
   user: userReducer,
   order: orderReducer,
@@ -32,6 +33,7 @@ const rootReducer = combineReducers({
   startOrder: startOrderReducer,
   leave: leaveReducer,
   checkinCheckout:checkinCheckoutReducer,
+  attendance:attendanceReducer,
 });
 
 export default rootReducer;

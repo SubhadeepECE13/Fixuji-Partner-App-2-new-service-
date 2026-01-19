@@ -1,37 +1,35 @@
 export interface AttendancePayload {
   vendorId: number;
-  geoLocation: string;    
+  geoLocation: string;
   decodedAddress: string;
   image?: {
     uri: string;
     name: string;
     type: string;
   };
-};
+}
 export interface Attachment {
   uri: string;
   type: string;
   name: string;
 }
 
-
 export interface AttendanceCheckInReq {
   date: string;
-  clock_in: string; 
-  checkin_geolocation: string; 
+  clock_in: string;
+  checkin_geolocation: string;
   checkin_distance: number | null;
-  checkin_area: number | null; 
+  checkin_area: number | null;
   checkin_attendance_place: string;
   checkin_attachment: Attachment;
 }
 
-
 export interface AttendanceCheckOutReq {
-  date: string; 
+  date: string;
   clock_out: string;
-  checkout_geolocation: string; 
+  checkout_geolocation: string;
   checkout_distance: number | null;
-  checkout_area: number | null; 
+  checkout_area: number | null;
   checkout_attendance_place: string;
   checkout_attachment: Attachment;
 }
@@ -52,8 +50,8 @@ export interface Employee {
   resume: string | null;
   avatar: string;
   document: string | null;
-  birth_date: string; 
-  joining_date: string | null; 
+  birth_date: string;
+  joining_date: string | null;
   company_id: number;
   department_id: number;
   designation_id: number;
@@ -63,24 +61,23 @@ export interface Employee {
   hourly_rate: number;
   basic_salary: number;
   employment_type: string;
-  leaving_date: string | null; 
+  leaving_date: string | null;
   marital_status: string;
   facebook: string | null;
   skype: string | null;
   whatsapp: string | null;
   twitter: string | null;
   linkedin: string | null;
-  created_at: string; 
-  updated_at: string; 
-  deleted_at: string | null; 
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
   password: string;
   role_id: number;
   reporting_to: number;
   time_zone: string | null;
   currency: string | null;
-  is_all_warehouses: string; 
+  is_all_warehouses: string;
 }
-
 
 export interface Company {
   id: number;
@@ -89,45 +86,43 @@ export interface Company {
   phone: string;
   country: string;
   created_at: string;
-  updated_at: string; 
-  deleted_at: string | null; 
+  updated_at: string;
+  deleted_at: string | null;
 }
 
-
- export interface Attendance {
+export interface Attendance {
   id: number;
   user_id: number;
   company_id: number;
   employee_id: number;
-  date: string; 
-  clock_in: string; 
+  date: string;
+  clock_in: string;
   clock_in_ip: string;
   clock_out: string;
   clock_out_ip: string;
   clock_in_out: number;
   depart_early: string;
   late_time: string;
-  overtime: string; 
-  total_work: string; 
-  total_rest: string; 
-  status: string; 
-  created_at: string; 
-  updated_at: string; 
-  deleted_at: string | null; 
+  overtime: string;
+  total_work: string;
+  total_rest: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
   checkin_geolocation: string;
-  checkout_geolocation: string; 
+  checkout_geolocation: string;
   checkin_distance: string;
   checkin_area: number;
   checkin_attachment: string;
   checkin_attendance_place: string;
-  checkout_area: string; 
-  checkout_attachment: string; 
+  checkout_area: string;
+  checkout_attachment: string;
   checkout_attendance_place: string;
-  checkout_distance: string; 
+  checkout_distance: string;
   employee: Employee;
   company: Company;
 }
-
 
 export interface Pagination {
   totalRows: number;
@@ -135,8 +130,7 @@ export interface Pagination {
   perPage: number;
 }
 
-
- export interface AttendanceResponse {
+export interface AttendanceResponse {
   attendances: Attendance[];
   totalRows: number;
   currentPage: number;
@@ -156,15 +150,15 @@ export interface AttendanceSegment {
   id: number;
   attendanceDayId: number;
   segmentType: "OVERTIME" | "REGULAR" | string;
-  checkInTime: string; 
-  checkOutTime: string; 
+  checkInTime: string;
+  checkOutTime: string;
   shiftCheckInTime: string;
-  shiftCheckOutTime: string; 
+  shiftCheckOutTime: string;
   durationMinutes: number;
   checkInImage: string;
   checkOutImage: string;
-  checkInGeoLocation: string; 
-  checkOutGeoLocation: string; 
+  checkInGeoLocation: string;
+  checkOutGeoLocation: string;
   checkInDecodedAddress: string;
   checkOutDecodedAddress: string;
   isManager: boolean;
@@ -173,7 +167,8 @@ export interface AttendanceSegment {
 }
 export interface AttendanceDay {
   id: number;
-  attendanceDate: string; 
+  attendanceDate: string;
+  isCheckedOut: true;
   status: "PRESENT" | "ABSENT" | "LEAVE" | string;
   shiftStatus: "DEFAULT_SHIFT" | string;
   approvalStatus: "PENDING" | "APPROVED" | "REJECTED" | string;
@@ -185,7 +180,6 @@ export interface AttendanceDay {
   isCalculated: boolean;
   attendanceSegments: AttendanceSegment[];
 }
-
 
 export interface MarkAttendanceFixedSearchResponse {
   success: boolean;

@@ -1,10 +1,10 @@
 import { Dropdown } from "@/@types/global";
-import { Attendance } from "@/store/actions/attendance/attendance.types";
+import { AttendanceDay } from "@/store/actions/attendance/attendance.types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AttendanceState {
-  attendances: Attendance[] | null;
-  todayAttendance: Attendance | null;
+  attendances: AttendanceDay[] | null;
+  todayAttendance: AttendanceDay | null;
   success: string | null;
   error: string | null;
 }
@@ -19,10 +19,10 @@ export const attendanceSlice = createSlice({
   name: "attendance",
   initialState,
   reducers: {
-    setAttendances: (state, action: PayloadAction<Attendance[] | null>) => {
+    setAttendances: (state, action: PayloadAction<AttendanceDay[] | null>) => {
       state.attendances = action.payload;
     },
-    setTodaysAttendance: (state, action: PayloadAction<Attendance | null>) => {
+    setTodaysAttendance: (state, action: PayloadAction<AttendanceDay | null>) => {
       state.todayAttendance = action.payload;
     },
     setError: (state, action: PayloadAction<string | null>) => {

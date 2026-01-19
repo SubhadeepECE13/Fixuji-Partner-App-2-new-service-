@@ -1,37 +1,46 @@
-import { submitAttendanceAPI } from "@/utils/attendanceAPI";
-import { AttendanceFormPayload, createAttendanceFormData } from "@/utils/location/AttendanceFomData";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import Toast from "react-native-toast-message";
 
+import { submitAttendanceAPI } from "@/utils/attendanceAPI";
+import {
+  AttendanceFormPayload,
+  createAttendanceFormData,
+} from "@/utils/location/AttendanceFomData";
 
-export const submitAttendance = createAsyncThunk(
-  "attendance/submit",
-  async (
-    {
-      type,
-      payload,
-    }: {
-      type: "checkin" | "checkout";
-      payload: AttendanceFormPayload;
-    },
-    { rejectWithValue }
-  ) => {
+import { RootState } from "@/store/Store";
+import { getAttendance } from "@/store/actions/attendance/attendance.actions";
+
+export const submitAttendance = createAsyncThunk<
+  any,
+  {
+    type: "checkin" | "checkout";
+    payload: AttendanceFormPayload;
+  },
+  { state: RootState; rejectValue: string }
+>(
+  "checkinCheckout/submitAttendance",
+  async ({ type, payload }, { dispatch, rejectWithValue }) => {
     try {
       const formData = createAttendanceFormData(payload, type);
-      const response = await submitAttendanceAPI(type, formData);
 
+      const response = await submitAttendanceAPI(type, formData);
 
       Toast.show({
         type: "success",
-        text1: type === "checkin" ? "Checked in successfully" : "Checked out successfully",
+        text1:
+          type === "checkin"
+            ? "Checked in successfully"
+            : "Checked out successfully",
       });
+
+      dispatch(getAttendance(Number(payload.vendorId)) as any);
 
       return response;
     } catch (error: any) {
       const message =
         error?.response?.data?.errorMessage ||
         error?.response?.data?.message ||
-        "Something went to much wrong";
+        "Something went wrong";
 
       Toast.show({
         type: "error",
@@ -49,10 +58,9 @@ const checkinCheckoutSlice = createSlice({
     loading: false,
     success: false,
     error: null as string | null,
-    todayAttendance: null as any,
   },
   reducers: {
-    resetAttendance: (state) => {
+    resetCheckinCheckoutState: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
@@ -62,18 +70,20 @@ const checkinCheckoutSlice = createSlice({
     builder
       .addCase(submitAttendance.pending, (state) => {
         state.loading = true;
+        state.success = false;
+        state.error = null;
       })
-      .addCase(submitAttendance.fulfilled, (state, action) => {
+      .addCase(submitAttendance.fulfilled, (state) => {
         state.loading = false;
         state.success = true;
-        state.todayAttendance = action.payload;
       })
       .addCase(submitAttendance.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload ?? "Something went wrong";
       });
   },
 });
 
-export const { resetAttendance } = checkinCheckoutSlice.actions;
+export const { resetCheckinCheckoutState } = checkinCheckoutSlice.actions;
+
 export default checkinCheckoutSlice.reducer;

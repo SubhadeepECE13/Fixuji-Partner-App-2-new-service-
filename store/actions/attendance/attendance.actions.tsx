@@ -2,36 +2,54 @@ import { appAxios } from "@/store/apiconfig";
 import {
   setAttendances,
   setError,
-  setTodaysAttendance
+  setTodaysAttendance,
 } from "@/store/reducers/attendance/attendanceSlice";
 import { AppDispatch } from "@/store/Store";
-import { MarkAttendanceFixedSearchResponse, RequestBody } from "./attendance.types";
+import { MarkAttendanceFixedSearchResponse } from "./attendance.types";
 
+const TodayDate: string = new Date().toISOString().split("T")[0];
 
-export const getAttendanceApi =
-  ({ isToday, body }: RequestBody) =>
+export const getAttendance =
+  (vendorId: number, page: number = 1, limit: number = 10) =>
   async (dispatch: AppDispatch) => {
     try {
-      let res = await appAxios.post<MarkAttendanceFixedSearchResponse>(
-        `/common/fixedSearch`,
-        body
-      );
-      if (res.status === 200) {
-        if (isToday) {
-          dispatch(
-            setTodaysAttendance(
-              res.data.attendances.length > 0 ? res.data.attendances[0] : null
-            )
-          );
-        } else {
-          dispatch(
-            setAttendances(
-              res.data.attendances.length > 0 ? res.data.attendances : null
-            )
-          );
+      const res = await appAxios.post<MarkAttendanceFixedSearchResponse>(
+        "/common/fixedSearch",
+        {
+          pageNo: page,
+          pageSize: limit,
+          shortCode: "ATTENDANCE_DAY",
+          searchColumns: [],
+          searchText: "",
+          sortBy: "createdAt",
+          sortDir: "DESC",
+          fixedSearch: {
+            // attendanceDate: {
+            //   type: "string",
+            //   value: [TodayDate],
+            // },
+            vendorId: {
+              type: "number",
+              value: [vendorId],
+            },
+          },
+          fixedNotSearch: {},
+          includes: {
+            attendanceSegments: {
+              where: {
+                isActive: true,
+              },
+            },
+          },
         }
-      }
+      );
+
+      const attendances = res.data.data.data ?? [];
+
+      dispatch(setAttendances(attendances));
+
+      dispatch(setTodaysAttendance(attendances[0] ?? null));
     } catch (error) {
-      dispatch(setError("Failed to fetch user data"));
+      dispatch(setError("Failed to fetch attendance"));
     }
   };
