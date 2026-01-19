@@ -7,8 +7,6 @@ import {
 import { AppDispatch } from "@/store/Store";
 import { MarkAttendanceFixedSearchResponse } from "./attendance.types";
 
-const TodayDate: string = new Date().toISOString().split("T")[0];
-
 export const getAttendance =
   (vendorId: number, page: number = 1, limit: number = 10) =>
   async (dispatch: AppDispatch) => {

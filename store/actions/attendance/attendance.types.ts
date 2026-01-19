@@ -168,7 +168,6 @@ export interface AttendanceSegment {
 export interface AttendanceDay {
   id: number;
   attendanceDate: string;
-  isCheckedOut: true;
   status: "PRESENT" | "ABSENT" | "LEAVE" | string;
   shiftStatus: "DEFAULT_SHIFT" | string;
   approvalStatus: "PENDING" | "APPROVED" | "REJECTED" | string;
@@ -178,6 +177,7 @@ export interface AttendanceDay {
   earlyCheckOutTotalMinutes: number;
   extraTimeTotalMinutes: number;
   isCalculated: boolean;
+  isCheckedIn: boolean;
   attendanceSegments: AttendanceSegment[];
 }
 

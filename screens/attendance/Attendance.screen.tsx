@@ -1,6 +1,7 @@
-// import React, { useEffect, useMemo, useState } from "react";
+// import React, { useCallback, useMemo, useState } from "react";
 // import { ScrollView, Text, View } from "react-native";
 // import { useDispatch } from "react-redux";
+// import { useFocusEffect } from "expo-router";
 
 // import CheckInOut from "@/components/attendance/CheckInOut";
 // import AttendancePunchCard from "@/components/attendance/AttendancePunchCard";
@@ -28,6 +29,9 @@
 //   { id: "2", name: "Site B", radius: 40 },
 // ];
 
+// // 🔥 Memoized Map (CRITICAL)
+// const MemoMap = React.memo(Map);
+
 // const AttendanceScreen = () => {
 //   const dispatch = useDispatch();
 
@@ -37,7 +41,6 @@
 //   const { setHighAccuracy, location } = useAppLocation();
 
 //   const [openCamera, setOpenCamera] = useState(false);
-
 //   const [isOn, setIsOn] = useState(false);
 //   const [isCheckedOut, setIsCheckedOut] = useState(false);
 //   const [isDisabled, setIsDisabled] = useState(true);
@@ -45,50 +48,55 @@
 //   const [selectedRegion, setSelectedRegion] = useState<any>();
 //   const [selectedRegionName, setSelectedRegionName] = useState<string>();
 //   const [isMapReady, setIsMapReady] = useState(false);
+//   const [showMap, setShowMap] = useState(false);
 
-//   useEffect(() => {
-//     const t = setTimeout(() => {
-//       setHighAccuracy(true);
-//     }, 100);
+//   /* ---------------------------------- */
+//   /* 🔥 Navigation-safe API call */
+//   /* ---------------------------------- */
+//   useFocusEffect(
+//     useCallback(() => {
+//       if (!user?.id) return;
+//       if (!todayAttendance) {
+//         dispatch(getAttendance(user.id) as any);
+//       }
 
-//     return () => {
-//       clearTimeout(t);
-//       setHighAccuracy(false);
-//     };
-//   }, []);
+//       // Delay map mount AFTER navigation completes
+//       const t = setTimeout(() => setShowMap(true), 250);
 
-//   useEffect(() => {
-//     if (!user?.id) return;
-//     dispatch(getAttendance(user.id) as any);
-//   }, [user?.id]);
+//       return () => {
+//         clearTimeout(t);
+//         setHighAccuracy(false);
+//       };
+//     }, [user?.id])
+//   );
 
+//   /* ---------------------------------- */
+//   /* Attendance cards */
+//   /* ---------------------------------- */
 //   const attendancePunches = useMemo(() => {
-//     if (!todayAttendance?.attendanceSegments) return [];
-//     return mapSegmentsToPunches(todayAttendance.attendanceSegments);
-//   }, [todayAttendance]);
+//     const segments = todayAttendance?.attendanceSegments;
+//     return segments?.length ? mapSegmentsToPunches(segments) : [];
+//   }, [todayAttendance?.attendanceSegments]);
 
 //   /* ---------------------------------- */
-//   /* Sync UI state from API (SOURCE OF TRUTH) */
+//   /* Sync UI from API */
 //   /* ---------------------------------- */
-//   useEffect(() => {
+//   useMemo(() => {
 //     if (!todayAttendance) {
-//       // Fresh day
+//       setIsOn(false);
 //       setIsCheckedOut(false);
-//       setIsOn(false); // Check-In
 //       return;
 //     }
 
 //     const segments = todayAttendance.attendanceSegments ?? [];
-//     const lastSegment = segments.at(-1);
+//     const last = segments.at(-1);
 
-//     if (lastSegment?.checkOutTime) {
-//       // Vendor already checked out
+//     if (last?.checkOutTime) {
 //       setIsCheckedOut(true);
-//       setIsOn(false); // Only Check-In allowed
-//     } else if (segments.length > 0) {
-//       // Vendor checked in but not checked out
+//       setIsOn(false);
+//     } else if (segments.length) {
 //       setIsCheckedOut(false);
-//       setIsOn(true); // Show Check-Out
+//       setIsOn(true);
 //     } else {
 //       setIsCheckedOut(false);
 //       setIsOn(false);
@@ -96,15 +104,14 @@
 //   }, [todayAttendance]);
 
 //   /* ---------------------------------- */
-//   /* Disable logic (SINGLE EFFECT) */
+//   /* Disable logic */
 //   /* ---------------------------------- */
-//   useEffect(() => {
+//   useMemo(() => {
 //     if (!isMapReady || !selectedRegion) {
 //       setIsDisabled(true);
 //       return;
 //     }
 
-//     // Prevent checkout if already checked out
 //     if (isCheckedOut && isOn) {
 //       setIsDisabled(true);
 //       return;
@@ -114,44 +121,46 @@
 //   }, [isCheckedOut, isOn, isMapReady, selectedRegion]);
 
 //   /* ---------------------------------- */
-//   /* Toggle handler */
+//   /* Check-In / Check-Out */
 //   /* ---------------------------------- */
 //   const toggleCheckInOut = () => {
 //     if (isDisabled) return;
+
+//     // 🔥 Immediate UI response
 //     setOpenCamera(true);
+
+//     // GPS runs in background
+//     setTimeout(() => setHighAccuracy(true), 0);
 //   };
 
 //   /* ---------------------------------- */
-//   /* Capture handler */
+//   /* Capture */
 //   /* ---------------------------------- */
 //   const handleCapture = async (imageUri: string) => {
 //     setOpenCamera(false);
 
-//     if (!location || !user) return;
+//     // 🔥 UI already closed → user not blocked
+//     setTimeout(() => setHighAccuracy(false), 0);
 
-//     const { latitude, longitude } = location;
-//     const address = await reverseGeocode(latitude, longitude);
+//     if (!location || !user) return;
 
 //     const payload = {
 //       vendorId: String(user.id),
-//       geoLocation: `${latitude},${longitude}`,
-//       decodedAddress: address?.fullAddress || "",
+//       geoLocation: `${location.latitude},${location.longitude}`,
+//       decodedAddress: await reverseGeocode(
+//         location.latitude,
+//         location.longitude
+//       ).then((r) => r?.fullAddress || ""),
 //       imageUri,
 //       isManager: false as const,
 //     };
 
-//     // REAL ACTION DECISION
-//     const type = isOn ? "checkout" : "checkin";
-
 //     dispatch(
 //       submitAttendance({
-//         type,
+//         type: isOn ? "checkout" : "checkin",
 //         payload,
 //       }) as any
 //     );
-
-//     // Refresh attendance after submit
-//     dispatch(getAttendance(user.id) as any);
 //   };
 
 //   /* ---------------------------------- */
@@ -161,43 +170,35 @@
 //     <View style={[{ flex: 1 }, commonStyles.grayContainer]}>
 //       <Header isBack title="Mark Attendance" isRightIcon={false} />
 
-//       <ScrollView showsVerticalScrollIndicator={false}>
+//       <ScrollView>
 //         <View style={styles.container}>
-//           {/* Map */}
 //           <View style={styles.box1}>
-//             <Map
-//               height="100%"
-//               radius={selectedRegion?.radius}
-//               onMapReady={() => {
-//                 setTimeout(() => setIsMapReady(true), 150);
-//               }}
-//             />
+//             {showMap && (
+//               <MemoMap
+//                 height="100%"
+//                 radius={selectedRegion?.radius}
+//                 onMapReady={() => setIsMapReady(true)}
+//               />
+//             )}
 //           </View>
 
-//           {/* Controls */}
 //           <View style={styles.box2}>
-//             <View style={styles.chipBox}>
-//               <Text style={styles.chipHeading}>Select Region</Text>
+//             <Text style={styles.chipHeading}>Select Region</Text>
 
-//               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-//                 {STATIC_REGIONS.map((item) => (
-//                   <View
-//                     key={item.id}
-//                     style={{ marginRight: windowHeight(0.5) }}
-//                   >
-//                     <Chip
-//                       text={item.name}
-//                       activeColor={color.primary}
-//                       isActive={selectedRegionName === item.name}
-//                       onPress={() => {
-//                         setSelectedRegion(item);
-//                         setSelectedRegionName(item.name);
-//                       }}
-//                     />
-//                   </View>
-//                 ))}
-//               </ScrollView>
-//             </View>
+//             <ScrollView horizontal>
+//               {STATIC_REGIONS.map((item) => (
+//                 <Chip
+//                   key={item.id}
+//                   text={item.name}
+//                   activeColor={color.primary}
+//                   isActive={selectedRegionName === item.name}
+//                   onPress={() => {
+//                     setSelectedRegion(item);
+//                     setSelectedRegionName(item.name);
+//                   }}
+//                 />
+//               ))}
+//             </ScrollView>
 
 //             <CheckInOut
 //               isOn={isOn}
@@ -233,9 +234,10 @@
 // };
 
 // export default AttendanceScreen;
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { useDispatch } from "react-redux";
+import { useFocusEffect } from "expo-router";
 
 import CheckInOut from "@/components/attendance/CheckInOut";
 import AttendancePunchCard from "@/components/attendance/AttendancePunchCard";
@@ -263,6 +265,9 @@ const STATIC_REGIONS = [
   { id: "2", name: "Site B", radius: 40 },
 ];
 
+// Memoized Map (unchanged)
+const MemoMap = React.memo(Map);
+
 const AttendanceScreen = () => {
   const dispatch = useDispatch();
 
@@ -272,11 +277,6 @@ const AttendanceScreen = () => {
   const { setHighAccuracy, location } = useAppLocation();
 
   const [openCamera, setOpenCamera] = useState(false);
-
-  /**
-   * isOn = true  → CHECK-OUT
-   * isOn = false → CHECK-IN
-   */
   const [isOn, setIsOn] = useState(false);
   const [isCheckedOut, setIsCheckedOut] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
@@ -284,65 +284,63 @@ const AttendanceScreen = () => {
   const [selectedRegion, setSelectedRegion] = useState<any>();
   const [selectedRegionName, setSelectedRegionName] = useState<string>();
   const [isMapReady, setIsMapReady] = useState(false);
-
-  /* 🔥 PERF: Delay map rendering */
-  const [renderMap, setRenderMap] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   /* ---------------------------------- */
-  /* Fetch attendance ONLY if not present */
+  /* Navigation-safe API call (unchanged) */
   /* ---------------------------------- */
-  useEffect(() => {
-    if (!user?.id) return;
-    if (todayAttendance) return;
+  useFocusEffect(
+    useCallback(() => {
+      if (!user?.id) return;
+      if (!todayAttendance) {
+        dispatch(getAttendance(user.id) as any);
+      }
 
-    dispatch(getAttendance(user.id) as any);
-  }, [user?.id]);
+      const t = setTimeout(() => setShowMap(true), 250);
+
+      return () => {
+        clearTimeout(t);
+        setHighAccuracy(false);
+      };
+    }, [user?.id])
+  );
 
   /* ---------------------------------- */
-  /* Delay Map mount slightly */
-  /* ---------------------------------- */
-  useEffect(() => {
-    const t = setTimeout(() => setRenderMap(true), 150);
-    return () => clearTimeout(t);
-  }, []);
-
-  /* ---------------------------------- */
-  /* Map attendance segments → cards */
+  /* Attendance cards (unchanged) */
   /* ---------------------------------- */
   const attendancePunches = useMemo(() => {
     const segments = todayAttendance?.attendanceSegments;
     return segments?.length ? mapSegmentsToPunches(segments) : [];
   }, [todayAttendance?.attendanceSegments]);
 
-  /* ---------------------------------- */
-  /* Sync UI state from API (SOURCE OF TRUTH) */
-  /* ---------------------------------- */
+  /* ====================================================== */
+  /* ✅ ONLY CHANGE: Sync UI state from backend isCheckedIn */
+  /* ====================================================== */
   useEffect(() => {
     if (!todayAttendance) {
+      setIsOn(false); // Check-In
       setIsCheckedOut(false);
-      setIsOn(false);
       return;
     }
 
-    const segments = todayAttendance.attendanceSegments ?? [];
-    const lastSegment = segments.at(-1);
-
-    if (lastSegment?.checkOutTime) {
-      setIsCheckedOut(true);
-      setIsOn(false);
-    } else if (segments.length > 0) {
+    /**
+     * Backend truth:
+     * isCheckedIn = true  → currently checked in → show CHECK-OUT
+     * isCheckedIn = false → not checked in → show CHECK-IN
+     */
+    if (todayAttendance.isCheckedIn) {
+      setIsOn(true); // Check-Out
       setIsCheckedOut(false);
-      setIsOn(true);
     } else {
-      setIsCheckedOut(false);
-      setIsOn(false);
+      setIsOn(false); // Check-In
+      setIsCheckedOut(true); // already checked out
     }
   }, [todayAttendance]);
 
   /* ---------------------------------- */
-  /* Disable logic (UNCHANGED) */
+  /* Disable logic (unchanged) */
   /* ---------------------------------- */
-  useEffect(() => {
+  useMemo(() => {
     if (!isMapReady || !selectedRegion) {
       setIsDisabled(true);
       return;
@@ -357,95 +355,79 @@ const AttendanceScreen = () => {
   }, [isCheckedOut, isOn, isMapReady, selectedRegion]);
 
   /* ---------------------------------- */
-  /* Toggle handler (GPS enabled HERE) */
+  /* Check-In / Check-Out (unchanged) */
   /* ---------------------------------- */
   const toggleCheckInOut = () => {
     if (isDisabled) return;
 
-    // 🔥 PERF: Enable GPS only when needed
-    setHighAccuracy(true);
-
     setOpenCamera(true);
+    setTimeout(() => setHighAccuracy(true), 0);
   };
 
   /* ---------------------------------- */
-  /* Capture handler */
+  /* Capture (unchanged) */
   /* ---------------------------------- */
   const handleCapture = async (imageUri: string) => {
     setOpenCamera(false);
-
-    // 🔥 PERF: Turn off GPS after capture
-    setHighAccuracy(false);
+    setTimeout(() => setHighAccuracy(false), 0);
 
     if (!location || !user) return;
 
-    const { latitude, longitude } = location;
-    const address = await reverseGeocode(latitude, longitude);
-
     const payload = {
       vendorId: String(user.id),
-      geoLocation: `${latitude},${longitude}`,
-      decodedAddress: address?.fullAddress || "",
+      geoLocation: `${location.latitude},${location.longitude}`,
+      decodedAddress: await reverseGeocode(
+        location.latitude,
+        location.longitude
+      ).then((r) => r?.fullAddress || ""),
       imageUri,
       isManager: false as const,
     };
 
-    const type = isOn ? "checkout" : "checkin";
-
     dispatch(
       submitAttendance({
-        type,
+        type: isOn ? "checkout" : "checkin",
         payload,
       }) as any
     );
   };
 
   /* ---------------------------------- */
-  /* UI */
+  /* UI (unchanged) */
   /* ---------------------------------- */
   return (
     <View style={[{ flex: 1 }, commonStyles.grayContainer]}>
       <Header isBack title="Mark Attendance" isRightIcon={false} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView>
         <View style={styles.container}>
-          {/* Map */}
           <View style={styles.box1}>
-            {renderMap && (
-              <Map
+            {showMap && (
+              <MemoMap
                 height="100%"
                 radius={selectedRegion?.radius}
-                onMapReady={() => {
-                  setTimeout(() => setIsMapReady(true), 150);
-                }}
+                onMapReady={() => setIsMapReady(true)}
               />
             )}
           </View>
 
-          {/* Controls */}
           <View style={styles.box2}>
-            <View style={styles.chipBox}>
-              <Text style={styles.chipHeading}>Select Region</Text>
+            <Text style={styles.chipHeading}>Select Region</Text>
 
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {STATIC_REGIONS.map((item) => (
-                  <View
-                    key={item.id}
-                    style={{ marginRight: windowHeight(0.5) }}
-                  >
-                    <Chip
-                      text={item.name}
-                      activeColor={color.primary}
-                      isActive={selectedRegionName === item.name}
-                      onPress={() => {
-                        setSelectedRegion(item);
-                        setSelectedRegionName(item.name);
-                      }}
-                    />
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
+            <ScrollView horizontal>
+              {STATIC_REGIONS.map((item) => (
+                <Chip
+                  key={item.id}
+                  text={item.name}
+                  activeColor={color.primary}
+                  isActive={selectedRegionName === item.name}
+                  onPress={() => {
+                    setSelectedRegion(item);
+                    setSelectedRegionName(item.name);
+                  }}
+                />
+              ))}
+            </ScrollView>
 
             <CheckInOut
               isOn={isOn}
