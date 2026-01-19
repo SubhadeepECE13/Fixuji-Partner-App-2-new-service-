@@ -1,4 +1,5 @@
 import { Dropdown } from "@/@types/global";
+import { Attendance } from "@/store/actions/attendance/attendance.types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AttendanceState {
@@ -31,6 +32,7 @@ export const attendanceSlice = createSlice({
       state.success = action.payload;
     },
   },
+  
 });
 
 export const { setError, setSuccess, setTodaysAttendance, setAttendances } =

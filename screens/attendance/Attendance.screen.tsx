@@ -213,6 +213,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import CaptureCamera from "@/components/common/CaptureCamera";
 import { useCameraPermissions } from "expo-camera";
 import { useAppLocation } from "@/context/LocationContext";
+import { reverseGeocode } from "@/utils/location/ReverseGeocode";
 
 const STATIC_REGIONS = [
   { id: "1", name: "Site A", radius: 30 },
@@ -233,10 +234,7 @@ const AttendanceScreen = () => {
   const [selectedRegionName, setSelectedRegionName] = useState<string>();
   const [isMapReady, setIsMapReady] = useState(false);
 
-  const { setHighAccuracy } = useAppLocation();
-
-
-
+  const { setHighAccuracy, location } = useAppLocation();
   useEffect(() => {
   const t = setTimeout(() => {
     setHighAccuracy(true);
@@ -263,19 +261,46 @@ const toggleCheckInOut = React.useCallback(() => {
 }, [selectedRegion, isMapReady]);
 
 
-  const handleCapture = () => {
-    setOpenCamera(false);
+  // const handleCapture = () => {
+  //   setOpenCamera(false);
 
-    if (!isCheckedIn) {
-      setIsCheckedIn(true);
-      setIsOn(true);
-      setCheckIn(new Date().toLocaleTimeString());
-    } else {
-      setIsCheckedOut(true);
-      setIsOn(false);
-      setCheckOut(new Date().toLocaleTimeString());
-    }
+  //   if (!isCheckedIn) {
+  //     setIsCheckedIn(true);
+  //     setIsOn(true);
+  //     setCheckIn(new Date().toLocaleTimeString());
+  //   } else {
+  //     setIsCheckedOut(true);
+  //     setIsOn(false);
+  //     setCheckOut(new Date().toLocaleTimeString());
+  //   }
+  // };
+  const handleCapture = async () => {
+  setOpenCamera(false);
+
+  if (!location) return;
+  const { latitude, longitude } = location;
+  const address = await reverseGeocode(latitude, longitude);
+
+  const payload = {
+    latitude,
+    longitude,
+    address: address?.fullAddress || "",
+    timestamp: new Date().toISOString(),
+    type: !isCheckedIn ? "CHECK_IN" : "CHECK_OUT",
   };
+
+  console.log("Attendance Payload:", payload);
+
+  if (!isCheckedIn) {
+    setIsCheckedIn(true);
+    setIsOn(true);
+    setCheckIn(new Date().toLocaleTimeString());
+  } else {
+    setIsCheckedOut(true);
+    setIsOn(false);
+    setCheckOut(new Date().toLocaleTimeString());
+  }
+};
 
   return (
     <View style={[{ flex: 1 }, commonStyles.grayContainer]}>

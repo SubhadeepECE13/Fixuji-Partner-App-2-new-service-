@@ -1,11 +1,22 @@
-interface Attachment {
+export interface AttendancePayload {
+  vendorId: number;
+  attendanceDate: string;
+  geoLocation: string;    
+  decodedAddress: string;
+  image?: {
+    uri: string;
+    name: string;
+    type: string;
+  };
+};
+export interface Attachment {
   uri: string;
   type: string;
   name: string;
 }
 
 // Define the main interface for the attendance record
-interface AttendanceCheckInReq {
+export interface AttendanceCheckInReq {
   date: string; // Format: 'YYYY-MM-DD'
   clock_in: string; // Format: 'HH:mm'
   checkin_geolocation: string; // JSON stringified Geolocation
@@ -16,7 +27,7 @@ interface AttendanceCheckInReq {
 }
 
 // Define the main interface for the attendance record
-interface AttendanceCheckOutReq {
+export interface AttendanceCheckOutReq {
   date: string; // Format: 'YYYY-MM-DD'
   clock_out: string; // Format: 'HH:mm'
   checkout_geolocation: string; // JSON stringified Geolocation
@@ -27,7 +38,7 @@ interface AttendanceCheckOutReq {
 }
 
 // Employee interface
-interface Employee {
+export interface Employee {
   id: number;
   firstname: string;
   lastname: string;
@@ -73,7 +84,7 @@ interface Employee {
 }
 
 // Company interface
-interface Company {
+export interface Company {
   id: number;
   name: string;
   email: string;
@@ -85,7 +96,7 @@ interface Company {
 }
 
 // Attendance interface
-interface Attendance {
+ export interface Attendance {
   id: number;
   user_id: number;
   company_id: number;
@@ -120,21 +131,21 @@ interface Attendance {
 }
 
 // Pagination interface
-interface Pagination {
+export interface Pagination {
   totalRows: number;
   currentPage: number;
   perPage: number;
 }
 
 // Overall response interface
-interface AttendanceResponse {
+ export interface AttendanceResponse {
   attendances: Attendance[];
   totalRows: number;
   currentPage: number;
   perPage: number;
 }
 
-interface RequestBody {
+export interface RequestBody {
   body: {
     user_id: string;
     start_date: string;
