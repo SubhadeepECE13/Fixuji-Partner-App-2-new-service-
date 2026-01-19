@@ -194,6 +194,7 @@
 // export default AttendanceScreen;
 import React, { useEffect, useRef, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 import CheckInOut from "@/components/attendance/CheckInOut";
 import TimeCard from "@/components/attendance/TimeInOut";
@@ -201,26 +202,46 @@ import Button from "@/components/common/Button";
 import Chip from "@/components/common/CommonChip";
 import Header from "@/components/common/Header";
 import Map from "@/components/common/Map";
-
 import { commonStyles } from "@/styles/common.style";
 import color from "@/themes/Colors.themes";
 import { windowHeight, windowWidth } from "@/themes/Constants.themes";
 import { router } from "expo-router";
 import styles from "./Style";
-
 import AttendancePunchCard from "@/components/attendance/AttendancePunchCard";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import CaptureCamera from "@/components/common/CaptureCamera";
-import { useCameraPermissions } from "expo-camera";
 import { useAppLocation } from "@/context/LocationContext";
 import { reverseGeocode } from "@/utils/location/ReverseGeocode";
+
+import { useAppSelector } from "@/store/Reduxhook";
+import { submitAttendance } from "@/store/reducers/checkin-checkout/checkinCheckoutSlice";
 
 const STATIC_REGIONS = [
   { id: "1", name: "Site A", radius: 30 },
   { id: "2", name: "Site B", radius: 40 },
 ];
+export const STATIC_ATTENDANCE_PUNCHES = [
+  {
+    checkin: {
+      time: "10:00 AM",
+      image:
+        "https://scontent.fccu4-2.fna.fbcdn.net/v/t1.6435-9/129900655_417962905908963_9040196984544546132_n.jpg",
+      address:
+        "8C7W+2JX Ashram Road Jalpaiguri Division Cooch Behar, West Bengal 736101",
+    },
+    location: {
+      geolocation: {
+        lat: 23.899,
+        long: 23.56,
+      },
+    },
+  },
+];
 
 const AttendanceScreen = () => {
+  const dispatch = useDispatch();
+  const checkinState = useSelector((state: any) => state.checkin);
+  const checkoutState = useSelector((state: any) => state.checkout);
+  const { user } = useAppSelector((state) => state.user);
   const [openCamera, setOpenCamera] = useState(false);
   const [isOn, setIsOn] = useState(false);
   const [isCheckedIn, setIsCheckedIn] = useState(false);
@@ -261,37 +282,34 @@ const toggleCheckInOut = React.useCallback(() => {
 }, [selectedRegion, isMapReady]);
 
 
-  // const handleCapture = () => {
-  //   setOpenCamera(false);
-
-  //   if (!isCheckedIn) {
-  //     setIsCheckedIn(true);
-  //     setIsOn(true);
-  //     setCheckIn(new Date().toLocaleTimeString());
-  //   } else {
-  //     setIsCheckedOut(true);
-  //     setIsOn(false);
-  //     setCheckOut(new Date().toLocaleTimeString());
-  //   }
-  // };
-  const handleCapture = async () => {
+const handleCapture = async (imageUri: string) => {
   setOpenCamera(false);
 
-  if (!location) return;
+  if (!location || !user) return;
+
   const { latitude, longitude } = location;
   const address = await reverseGeocode(latitude, longitude);
 
-  const payload = {
-    latitude,
-    longitude,
-    address: address?.fullAddress || "",
-    timestamp: new Date().toISOString(),
-    type: !isCheckedIn ? "CHECK_IN" : "CHECK_OUT",
+  const commonPayload = {
+    vendorId: String(user.id),
+    geoLocation: `${latitude},${longitude}`,
+    decodedAddress: address?.fullAddress || "",
+    imageUri,
+    isManager: false as const
   };
+    console.log("Attendance Common Payload ::::::=====>>>>>>",commonPayload);
 
-  console.log("Attendance Payload:", payload);
+  const type = isCheckedIn ? "checkout" : "checkin";
 
-  if (!isCheckedIn) {
+  dispatch(
+    submitAttendance({
+      type,
+      payload: commonPayload,
+    }) as any
+  );
+
+
+  if (type === "checkin") {
     setIsCheckedIn(true);
     setIsOn(true);
     setCheckIn(new Date().toLocaleTimeString());
@@ -344,13 +362,16 @@ const toggleCheckInOut = React.useCallback(() => {
             <CheckInOut
               isOn={isOn}
               onToggle={toggleCheckInOut}
-              isDisabled={isDisabled}
+              isDisabled={isDisabled }
             />
+            {STATIC_ATTENDANCE_PUNCHES.map((item, index) => (
+              <AttendancePunchCard key={index} index={index} punch={item} />
+            ))}
 
-            <View style={styles.TimeCardContainer}>
+            {/* <View style={styles.TimeCardContainer}>
               <TimeCard time={checkIn} title="Check In" width={"48%"} />
               <TimeCard time={checkOut} title="Check Out" width={"48%"} />
-            </View>
+            </View> */}
           </View>
         </View>
       </ScrollView>

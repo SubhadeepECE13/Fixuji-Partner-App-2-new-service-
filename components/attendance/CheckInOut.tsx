@@ -68,7 +68,6 @@ const CheckInOut = ({
                 true: color.whiteColor,
               }}
               thumbColor={isDisabled ? color.fadedPrimary : color.primary}
-              // ios_backgroundColor="#3e3e3e"
               onValueChange={onToggle}
               value={isOn}
               disabled={isDisabled}

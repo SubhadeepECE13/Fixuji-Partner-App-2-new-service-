@@ -1,6 +1,6 @@
 export interface AttendancePayload {
   vendorId: number;
-  attendanceDate: string;
+  // attendanceDate: string;
   geoLocation: string;    
   decodedAddress: string;
   image?: {

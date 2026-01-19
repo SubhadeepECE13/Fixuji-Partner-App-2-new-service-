@@ -6,6 +6,7 @@ import {
   setTodaysAttendance,
 } from "@/store/reducers/attendance/attendanceSlice";
 import { AppDispatch } from "@/store/Store";
+import { AttendanceResponse, RequestBody } from "./attendance.types";
 
 export const checkInApi =
   (formData: FormData) => async (dispatch: AppDispatch) => {

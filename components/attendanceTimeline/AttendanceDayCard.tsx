@@ -111,7 +111,8 @@ const AttendanceDayCard = ({
   );
 };
 
-export default AttendanceDayCard;
+export default React.memo(AttendanceDayCard);
+
 const styles = StyleSheet.create({
   card: {
     backgroundColor: color.whiteColor,

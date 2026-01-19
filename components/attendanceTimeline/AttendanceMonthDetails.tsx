@@ -139,7 +139,7 @@ const AttendanceMonthDetails = ({
   );
 };
 
-export default AttendanceMonthDetails;
+export default React.memo(AttendanceMonthDetails);
 const styles = StyleSheet.create({
   wrapper: {
     margin: windowWidth(4),
