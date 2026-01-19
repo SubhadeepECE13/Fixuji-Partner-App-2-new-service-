@@ -195,9 +195,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-
 import CheckInOut from "@/components/attendance/CheckInOut";
-import TimeCard from "@/components/attendance/TimeInOut";
 import Button from "@/components/common/Button";
 import Chip from "@/components/common/CommonChip";
 import Header from "@/components/common/Header";
