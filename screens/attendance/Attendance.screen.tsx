@@ -261,11 +261,11 @@ import { mapSegmentsToPunches } from "@/store/actions/attendance/attendance.mapp
 import { getAttendance } from "@/store/actions/attendance/attendance.actions";
 
 const STATIC_REGIONS = [
-  { id: "1", name: "Site A", radius: 30 },
-  { id: "2", name: "Site B", radius: 40 },
+  { id: "1", name: "Siliguri", radius: 30 },
+  // { id: "2", name: "Site B", radius: 40 },
 ];
+const DEFAULT_REGION = STATIC_REGIONS[0];
 
-// Memoized Map (unchanged)
 const MemoMap = React.memo(Map);
 
 const AttendanceScreen = () => {
@@ -273,31 +273,28 @@ const AttendanceScreen = () => {
 
   const { user } = useAppSelector((state) => state.user);
   const { todayAttendance } = useAppSelector((state) => state.attendance);
-
   const { setHighAccuracy, location } = useAppLocation();
-
   const [openCamera, setOpenCamera] = useState(false);
   const [isOn, setIsOn] = useState(false);
   const [isCheckedOut, setIsCheckedOut] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
+  // const [selectedRegion, setSelectedRegion] = useState<any>();
+  // const [selectedRegionName, setSelectedRegionName] = useState<string>();
+  const [selectedRegion, setSelectedRegion] = useState(DEFAULT_REGION);
+  const [selectedRegionName, setSelectedRegionName] = useState(
+    DEFAULT_REGION.name
+  );
 
-  const [selectedRegion, setSelectedRegion] = useState<any>();
-  const [selectedRegionName, setSelectedRegionName] = useState<string>();
   const [isMapReady, setIsMapReady] = useState(false);
   const [showMap, setShowMap] = useState(false);
 
-  /* ---------------------------------- */
-  /* Navigation-safe API call (unchanged) */
-  /* ---------------------------------- */
   useFocusEffect(
     useCallback(() => {
       if (!user?.id) return;
       if (!todayAttendance) {
         dispatch(getAttendance(user.id) as any);
       }
-
       const t = setTimeout(() => setShowMap(true), 250);
-
       return () => {
         clearTimeout(t);
         setHighAccuracy(false);
@@ -305,41 +302,27 @@ const AttendanceScreen = () => {
     }, [user?.id])
   );
 
-  /* ---------------------------------- */
-  /* Attendance cards (unchanged) */
-  /* ---------------------------------- */
   const attendancePunches = useMemo(() => {
     const segments = todayAttendance?.attendanceSegments;
     return segments?.length ? mapSegmentsToPunches(segments) : [];
   }, [todayAttendance?.attendanceSegments]);
 
-  /* ====================================================== */
-  /* ✅ ONLY CHANGE: Sync UI state from backend isCheckedIn */
-  /* ====================================================== */
   useEffect(() => {
     if (!todayAttendance) {
-      setIsOn(false); // Check-In
+      setIsOn(false);
       setIsCheckedOut(false);
       return;
     }
 
-    /**
-     * Backend truth:
-     * isCheckedIn = true  → currently checked in → show CHECK-OUT
-     * isCheckedIn = false → not checked in → show CHECK-IN
-     */
     if (todayAttendance.isCheckedIn) {
-      setIsOn(true); // Check-Out
+      setIsOn(true);
       setIsCheckedOut(false);
     } else {
-      setIsOn(false); // Check-In
-      setIsCheckedOut(true); // already checked out
+      setIsOn(false);
+      setIsCheckedOut(true);
     }
   }, [todayAttendance]);
 
-  /* ---------------------------------- */
-  /* Disable logic (unchanged) */
-  /* ---------------------------------- */
   useMemo(() => {
     if (!isMapReady || !selectedRegion) {
       setIsDisabled(true);
@@ -354,9 +337,6 @@ const AttendanceScreen = () => {
     setIsDisabled(false);
   }, [isCheckedOut, isOn, isMapReady, selectedRegion]);
 
-  /* ---------------------------------- */
-  /* Check-In / Check-Out (unchanged) */
-  /* ---------------------------------- */
   const toggleCheckInOut = () => {
     if (isDisabled) return;
 
@@ -364,9 +344,6 @@ const AttendanceScreen = () => {
     setTimeout(() => setHighAccuracy(true), 0);
   };
 
-  /* ---------------------------------- */
-  /* Capture (unchanged) */
-  /* ---------------------------------- */
   const handleCapture = async (imageUri: string) => {
     setOpenCamera(false);
     setTimeout(() => setHighAccuracy(false), 0);
@@ -392,14 +369,11 @@ const AttendanceScreen = () => {
     );
   };
 
-  /* ---------------------------------- */
-  /* UI (unchanged) */
-  /* ---------------------------------- */
   return (
     <View style={[{ flex: 1 }, commonStyles.grayContainer]}>
       <Header isBack title="Mark Attendance" isRightIcon={false} />
 
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <View style={styles.box1}>
             {showMap && (
@@ -442,14 +416,14 @@ const AttendanceScreen = () => {
         </View>
       </ScrollView>
 
-      <View style={styles.btnContainer}>
+      {/* <View style={styles.btnContainer}>
         <Button
           backgroundColor={color.primary}
           title="View Timesheet"
           onPress={() => router.push("/(routes)/attendanceTimeline")}
           style={{ width: windowWidth(90) }}
         />
-      </View>
+      </View> */}
 
       <CaptureCamera
         visible={openCamera}

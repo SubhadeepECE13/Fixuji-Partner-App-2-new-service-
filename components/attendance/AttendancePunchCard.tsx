@@ -1,8 +1,78 @@
-import React, { useRef } from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+// import React, { useRef } from "react";
+// import { View, StyleSheet, TouchableOpacity } from "react-native";
+// import { Text } from "react-native-paper";
+// import { BottomSheetModal } from "@gorhom/bottom-sheet";
+// import { MaterialCommunityIcons } from "@expo/vector-icons";
+
+// import color from "@/themes/Colors.themes";
+// import fonts from "@/themes/Fonts.themes";
+// import {
+//   fontSizes,
+//   windowHeight,
+//   windowWidth,
+// } from "@/themes/Constants.themes";
+// import AttendanceDayDetails from "./AttendanceDayDetails";
+
+// type Props = {
+//   index: number;
+//   punch: {
+//     checkin?: { time?: string; image?: string; address: string };
+//     checkout?: { time?: string; image?: string; address: string };
+//     location?: { geolocation: { lat: number; long: number } };
+//   };
+// };
+
+// const AttendancePunchCard = ({ index, punch }: Props) => {
+//   const bottomSheetRef = useRef<BottomSheetModal>(null);
+
+//   const openSheet = () => {
+//     bottomSheetRef.current?.present();
+//   };
+
+//   return (
+//     <>
+//       <View style={styles.card}>
+//         <View style={styles.header}>
+//           <Text style={styles.title}>Punch {index + 1}</Text>
+//           <Text style={styles.label}>Kolkata Shift | 10AM to 12:00PM</Text>
+//         </View>
+
+//         <View style={styles.infoRow}>
+//           <Text style={styles.label}>Check In</Text>
+//           <Text style={styles.value}>{punch.checkin?.time || "N/A"}</Text>
+//         </View>
+
+//         <View style={styles.divider} />
+
+//         <View style={styles.infoRow}>
+//           <Text style={styles.label}>Check Out</Text>
+//           <Text style={styles.value}>
+//             {punch.checkout?.time || "Still Checked In"}
+//           </Text>
+//         </View>
+
+//         <TouchableOpacity style={styles.footer} onPress={openSheet}>
+//           <Text style={styles.footerText}>View details</Text>
+//           <MaterialCommunityIcons
+//             name="arrow-right"
+//             size={18}
+//             color={color.primary}
+//           />
+//         </TouchableOpacity>
+//       </View>
+
+//       <AttendanceDayDetails ref={bottomSheetRef} punch={punch} index={index} />
+//     </>
+//   );
+// };
+
+// export default AttendancePunchCard;
+import React, { useRef, useState, useCallback } from "react";
+import { View, StyleSheet, TouchableOpacity, BackHandler } from "react-native";
 import { Text } from "react-native-paper";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useFocusEffect } from "expo-router";
 
 import color from "@/themes/Colors.themes";
 import fonts from "@/themes/Fonts.themes";
@@ -18,23 +88,46 @@ type Props = {
   punch: {
     checkin?: { time?: string; image?: string; address: string };
     checkout?: { time?: string; image?: string; address: string };
-    location?: { geolocation: { lat: number; long: number } };
   };
 };
 
 const AttendancePunchCard = ({ index, punch }: Props) => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const openSheet = () => {
+    setIsSheetOpen(true);
     bottomSheetRef.current?.present();
   };
+
+  const closeSheet = () => {
+    setIsSheetOpen(false);
+    bottomSheetRef.current?.dismiss();
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        if (isSheetOpen) {
+          closeSheet();
+          return true;
+        }
+        return false;
+      };
+
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+      return () =>
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+    }, [isSheetOpen])
+  );
 
   return (
     <>
       <View style={styles.card}>
         <View style={styles.header}>
           <Text style={styles.title}>Punch {index + 1}</Text>
-          <Text style={styles.label}>Kolkata Shift | 10AM to 12:00PM</Text>
+          <Text style={styles.label}>Kolkata Shift | 10AM to 12PM</Text>
         </View>
 
         <View style={styles.infoRow}>
@@ -61,12 +154,18 @@ const AttendancePunchCard = ({ index, punch }: Props) => {
         </TouchableOpacity>
       </View>
 
-      <AttendanceDayDetails ref={bottomSheetRef} punch={punch} index={index} />
+      <AttendanceDayDetails
+        ref={bottomSheetRef}
+        index={index}
+        punch={punch}
+        onDismiss={() => setIsSheetOpen(false)}
+      />
     </>
   );
 };
 
 export default AttendancePunchCard;
+
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
